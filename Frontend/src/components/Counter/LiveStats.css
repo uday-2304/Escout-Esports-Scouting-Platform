@@ -1,0 +1,56 @@
+.live-stats {
+  background-color: #151313;
+  color: #ffffff;
+  text-align: center;
+  padding: 5rem 2rem;
+  font-family: "Poppins", sans-serif;
+}
+
+.live-stats-title {
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 3rem;
+  color: #f5f5f5;
+}
+
+.live-stats-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+@media (min-width: 768px) {
+  .live-stats-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.live-stats-card {
+  background: linear-gradient(145deg, #16161a, #1c1c23);
+  border-radius: 20px;
+  padding: 2.5rem 1.5rem;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.live-stats-card:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 20px #be5e1e;
+  cursor: pointer;
+}
+
+.live-stats-number {
+  font-size: 3rem;
+  font-weight: 800;
+  color: #be5e1e;
+  margin-bottom: 0.5rem;
+}
+
+.live-stats-label {
+  font-size: 1.1rem;
+  color: #d1d1d1;
+  margin-top: 0.5rem;
+  letter-spacing: 0.5px;
+}

@@ -1,0 +1,113 @@
+/* --- Full-width but balanced carousel layout --- */
+.carousel-wrapper {
+  position: relative;
+  width: 100%;
+  background: #151313;
+  padding: 40px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+/* --- Scrollable image track --- */
+.carousel-container {
+  display: flex;
+  gap: 20px;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  width: 90%;
+  padding: 10px;
+}
+.carousel-container::-webkit-scrollbar {
+  display: none;
+}
+
+/* --- Each image item --- */
+.carousel-item {
+  position: relative;
+  flex: 0 0 auto;
+  width: 390px;
+  height: 250px;
+  border-radius: 15px;
+  overflow: hidden;
+  transition: transform 0.3s;
+}
+.carousel-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 15px;
+}
+.carousel-item:hover {
+  transform: scale(1.05);
+  cursor: pointer;
+}
+
+/* --- Overlay for names --- */
+.image-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 40%;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.7), transparent);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  padding-bottom: 15px;
+}
+.carousel-item:hover .image-overlay {
+  opacity: 1;
+}
+
+.image-title {
+  color: #fff;
+  font-size: 1.1rem;
+  font-weight: 500;
+  font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+  letter-spacing: 0.5px;
+  text-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+}
+
+/* --- Arrow buttons --- */
+.arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(0, 0, 0, 0.5);
+  border: none;
+  color: white;
+  padding: 10px;
+  border-radius: 50%;
+  cursor: pointer;
+  z-index: 5;
+  transition: background 0.3s;
+}
+.arrow:hover {
+  background: rgba(218, 79, 14, 0.8);
+}
+.arrow.left {
+  left: 25px;
+}
+.arrow.right {
+  right: 25px;
+}
+
+/* --- Responsive adjustments --- */
+@media (max-width: 768px) {
+  .carousel-item {
+    width: 250px;
+    height: 160px;
+  }
+  .arrow.left {
+    left: 10px;
+  }
+  .arrow.right {
+    right: 10px;
+  }
+}
