@@ -1,113 +1,211 @@
-/* --- Full-width but balanced carousel layout --- */
+@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Orbitron:wght@400;500;700&display=swap');
+
+:root {
+  --primary: #7000ff;
+  --secondary: #00f3ff;
+  --bg-deep: #050714;
+  --glass: rgba(255, 255, 255, 0.05);
+  --border-subtle: rgba(255, 255, 255, 0.1);
+}
+
+/* --- Wrapper: Deep Dark Background --- */
 .carousel-wrapper {
   position: relative;
   width: 100%;
-  background: #151313;
-  padding: 40px 0;
+  background: var(--bg-deep);
+  padding: 80px 0; /* More breathing room */
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   overflow: hidden;
+  border-top: 1px solid var(--border-subtle);
+  border-bottom: 1px solid var(--border-subtle);
 }
 
-/* --- Scrollable image track --- */
+/* Background Glow Effect */
+.carousel-wrapper::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 80%;
+  height: 200px;
+  background: radial-gradient(circle, rgba(112, 0, 255, 0.15) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+/* --- Section Title --- */
+.carousel-title {
+  font-family: 'Orbitron', sans-serif;
+  color: #fff;
+  font-size: 24px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  margin-bottom: 40px;
+  text-align: center;
+  position: relative;
+  z-index: 2;
+}
+
+.carousel-title span {
+  color: var(--primary);
+}
+
+/* --- Scroll Track --- */
 .carousel-container {
   display: flex;
-  gap: 20px;
+  gap: 30px; /* Increased gap */
   overflow-x: auto;
   scroll-behavior: smooth;
   scrollbar-width: none;
   -ms-overflow-style: none;
   width: 90%;
-  padding: 10px;
+  padding: 20px 10px; /* Padding for hover growth */
+  z-index: 2;
 }
+
 .carousel-container::-webkit-scrollbar {
   display: none;
 }
 
-/* --- Each image item --- */
+/* --- Card Item --- */
 .carousel-item {
   position: relative;
   flex: 0 0 auto;
-  width: 390px;
-  height: 250px;
-  border-radius: 15px;
+  width: 320px;
+  height: 450px; /* Portrait orientation looks more premium for games */
+  border-radius: 12px;
   overflow: hidden;
-  transition: transform 0.3s;
+  transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+  background: #000;
+  border: 1px solid var(--border-subtle);
+  cursor: pointer;
 }
+
+/* Image Styling */
 .carousel-item img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  border-radius: 15px;
-}
-.carousel-item:hover {
-  transform: scale(1.05);
-  cursor: pointer;
+  transition: transform 0.6s ease, filter 0.4s ease;
+  filter: grayscale(30%); /* Cinematic look */
 }
 
-/* --- Overlay for names --- */
+/* --- Hover Effects --- */
+.carousel-item:hover {
+  transform: translateY(-10px);
+  border-color: var(--primary);
+  box-shadow: 0 0 30px rgba(112, 0, 255, 0.3);
+}
+
+.carousel-item:hover img {
+  transform: scale(1.1);
+  filter: grayscale(0%);
+}
+
+/* --- Tech Overlay (Gradient + Text) --- */
 .image-overlay {
   position: absolute;
   bottom: 0;
   left: 0;
   width: 100%;
-  height: 40%;
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.7), transparent);
+  height: 100%;
+  background: linear-gradient(to top, rgba(5, 7, 20, 0.95) 0%, rgba(5, 7, 20, 0.1) 50%, transparent 100%);
   display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  padding-bottom: 15px;
-}
-.carousel-item:hover .image-overlay {
-  opacity: 1;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 25px;
+  opacity: 1; /* Always visible but subtle */
 }
 
+/* Text Styling */
 .image-title {
   color: #fff;
-  font-size: 1.1rem;
-  font-weight: 500;
-  font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
-  letter-spacing: 0.5px;
-  text-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 28px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 5px;
+  text-shadow: 0 0 10px rgba(0,0,0,0.8);
+  transform: translateY(0);
+  transition: transform 0.3s;
 }
 
-/* --- Arrow buttons --- */
-.arrow {
+.image-subtitle {
+  color: var(--secondary);
+  font-family: 'Orbitron', sans-serif;
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: all 0.3s ease;
+}
+
+/* Reveal Subtitle on Hover */
+.carousel-item:hover .image-title {
+  transform: translateY(-5px);
+}
+
+.carousel-item:hover .image-subtitle {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* --- Controls (Arrows) --- */
+.controls-container {
   position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  background: rgba(0, 0, 0, 0.5);
-  border: none;
-  color: white;
-  padding: 10px;
-  border-radius: 50%;
-  cursor: pointer;
-  z-index: 5;
-  transition: background 0.3s;
-}
-.arrow:hover {
-  background: rgba(218, 79, 14, 0.8);
-}
-.arrow.left {
-  left: 25px;
-}
-.arrow.right {
-  right: 25px;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none; /* Let clicks pass through to cards */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 20px;
+  z-index: 10;
 }
 
-/* --- Responsive adjustments --- */
+.arrow {
+  pointer-events: auto; /* Re-enable clicks */
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--border-subtle);
+  color: #fff;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.arrow:hover {
+  background: var(--primary);
+  border-color: var(--primary);
+  box-shadow: 0 0 20px rgba(112, 0, 255, 0.5);
+  transform: scale(1.1);
+}
+
+/* --- Responsive --- */
 @media (max-width: 768px) {
   .carousel-item {
-    width: 250px;
-    height: 160px;
+    width: 260px;
+    height: 380px;
   }
-  .arrow.left {
-    left: 10px;
+  
+  .carousel-title {
+    font-size: 20px;
   }
-  .arrow.right {
-    right: 10px;
+
+  .arrow {
+    width: 40px;
+    height: 40px;
   }
 }

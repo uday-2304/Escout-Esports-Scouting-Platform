@@ -10,8 +10,7 @@ import {
 
 import Navbar from "./components/Navbar/Navbar";
 import Hero from "./components/Hero/Hero";
-import Title from "./components/Titles/Title";
-import Program from "./components/programs/program";
+import Program from "./components/programs/Program";
 import Footer from "./components/Footer/Footer";
 import LiveStats from "./components/Counter/LiveStats";
 import AboutSection from "./components/Info/AboutSection";
@@ -39,10 +38,6 @@ const AppContent = () => {
       {isHome && (
         <>
           <Hero/>
-          <Title
-            title="Enter the Arena of Champions"
-            SubTitle="Explore the worlds most intense competitive games — from tactical shooters to legendary battle arenas."
-          />
           <Program/>
           <LiveStats/>
           <AboutSection/>

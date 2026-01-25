@@ -1,30 +1,194 @@
-.hero {
-    width: 100%;
-    height: 100vh;
-    background:linear-gradient(rgba(7, 7, 7, 0.5)) , 
-    url('../../assets/img4.jpg') no-repeat center center/cover;
-    background-size: cover;
-    background-position: center;
-    align-items: center;
-    display: flex;
-    justify-content: center;
+/* ====== RESET & FONTS ====== */
+@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Orbitron:wght@400;500;800;900&family=Inter:wght@400;500&display=swap');
+
+:root {
+  --neon-purple: #a50000;
+  --tech-white: #ffffff;
+  --tech-gray: #cbd5e1;
+  --bg-black: #000000;
 }
 
-.hero-text{
-    text-align: center;
-    max-width: 800px;
-    
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
-.hero-text h1{
-    font-size: 50px;
-    font-weight: 600;
-    color: rgb(243, 243, 255);
+
+/* ================= HERO CONTAINER ================= */
+.hero-container {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  background: var(--bg-black);
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  font-family: 'Rajdhani', sans-serif;
 }
-.hero-text p{
-    max-width: 800px;
-    margin: 10px auto 20px;
-    line-height: 1.4;
-    font-weight: 300;
-    color: rgb(255, 251, 251);
-    font-size: 15px;
+
+/* ================= LEFT SIDE: IMAGE SECTION ================= */
+.hero-image-wrapper {
+  position: relative;
+  width: 50%; /* Exactly half width */
+  height: 100%;
+  /* Creates a 'letterbox' feel if image isn't tall enough, or crops nicely */
+  display: flex;
+  align-items: center; 
+  justify-content: center;
+}
+
+.hero-img {
+  width: 75%;
+  height: 70%;
+  object-fit: cover;
+  /* Slight cinematic drift */
+  animation: cinematicPan 30s infinite alternate ease-in-out;
+}
+
+@keyframes cinematicPan {
+  from { transform: scale(1.05); }
+  to { transform: scale(1.10) translateX(-15px); }
+}
+
+/* --- THE "RICH" FADE --- */
+/* This gradient blends the image seamlessly into the black text area */
+.hero-image-overlay {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 20%; /* Broad fade for smoothness */
+  height: 100%;
+  background: linear-gradient(to right, transparent 0%, var(--bg-black) 100%);
+  z-index: 2;
+}
+
+/* ================= RIGHT SIDE: TEXT SECTION ================= */
+.hero-text-wrapper {
+  width: 50%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  /* Massive padding for that "High-End" whitespace look */
+  padding-left: 20px; 
+  padding-right: 100px;
+  z-index: 10;
+  background: var(--bg-black);
+}
+
+/* ================= CONTINUOUS ANIMATION (ABOVE TEXT) ================= */
+.tech-header-anim {
+  position: relative;
+  width: 100%;
+  height: 20px;
+  overflow: hidden;
+  margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+  opacity: 0;
+  animation: fadeIn 1.5s ease-out forwards 0.2s;
+}
+
+/* Digital particles */
+.particle-stream {
+  position: absolute;
+  height: 4px;
+  background: linear-gradient(90deg, transparent, #ff0000, transparent);
+  animation: streamMove 5s linear infinite;
+  opacity: 0.9;
+}
+
+.p1 { top: 50%; left: -100px; width: 150px; animation-delay: 0s; }
+.p2 { top: 50%; left: -200px; width: 100px; animation-delay: 2.5s; opacity: 0.8; }
+
+@keyframes streamMove {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(800px); }
+}
+
+/* ================= TYPOGRAPHY (RICH & LARGE) ================= */
+.hero-text-wrapper h1 {
+  font-family: 'Orbitron', sans-serif;
+  /* Massive, responsive size for impact */
+  font-size: clamp(60px, 8vw, 110px); 
+  font-weight: 900;
+  text-transform: uppercase;
+  color: var(--tech-white);
+  margin-bottom: 30px;
+  letter-spacing: 2px;
+  line-height: 0.95; /* Tight leading for punchy look */
+  opacity: 0;
+  transform: translateX(40px);
+  animation: slideInRight 1s cubic-bezier(0.2, 0.8, 0.2, 1) forwards 0.4s;
+}
+
+.hero-text-wrapper p {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 20px; /* Increased size */
+  line-height: 1.6;
+  font-weight: 400;
+  color: var(--tech-gray);
+  max-width: 650px;
+  opacity: 0;
+  transform: translateX(40px);
+  animation: slideInRight 1s cubic-bezier(0.2, 0.8, 0.2, 1) forwards 0.6s;
+}
+
+/* ================= TECH FRAME UI (Minimalist) ================= */
+.tech-frame {
+  position: absolute;
+  inset: 40px; /* More spacing from edges */
+  border: 1px solid rgba(255, 255, 255, 0.05); /* Ultra subtle */
+  z-index: 20;
+  pointer-events: none;
+}
+
+
+
+.tech-frame::before { top: -1px; left: -1px; border-right: none; border-bottom: none; }
+.tech-frame::after { bottom: -1px; right: -1px; border-left: none; border-top: none; }
+
+/* Crosshairs */
+.crosshair {
+  position: absolute;
+  color: rgba(255, 255, 255, 0.2);
+  font-size: 16px;
+  font-weight: 300;
+}
+.crosshair.tl { top: 40px; left: 40px; }
+.crosshair.br { bottom: 40px; right: 40px; }
+
+/* ================= ANIMATIONS ================= */
+@keyframes slideInRight {
+  to { opacity: 1; transform: translateX(0); }
+}
+@keyframes fadeIn {
+  to { opacity: 1; }
+}
+
+/* ================= RESPONSIVE ================= */
+@media (max-width: 1024px) {
+  /* On tablets/laptops, reduce font slightly */
+  .hero-text-wrapper h1 { font-size: 70px; }
+  .hero-text-wrapper { padding-right: 50px; }
+}
+
+@media (max-width: 992px) {
+  /* Stack on Mobile */
+  .hero-container { flex-direction: column; }
+  .hero-image-wrapper { width: 100%; height: 50%; }
+  .hero-text-wrapper { width: 100%; height: 50%; padding: 40px; text-align: center; align-items: center; }
+  
+  /* Change fade direction for mobile */
+  .hero-image-overlay {
+    width: 100%; height: 50%; top: auto; bottom: 0; right: 0;
+    background: linear-gradient(to bottom, transparent, var(--bg-black));
+  }
+  
+  .tech-header-anim { justify-content: center; }
+  .hero-text-wrapper h1 { font-size: 50px; line-height: 1.1; margin-bottom: 15px; }
+  .hero-text-wrapper p { font-size: 16px; }
+  .tech-frame { inset: 20px; }
+  .crosshair.tl { top: 20px; left: 20px; }
+  .crosshair.br { bottom: 20px; right: 20px; }
 }

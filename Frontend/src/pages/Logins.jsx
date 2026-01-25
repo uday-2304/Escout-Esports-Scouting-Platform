@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { FaGoogle, FaFacebookF, FaXTwitter } from "react-icons/fa6";
-import api from "../api/Axios"; 
+import { FaGoogle, FaRegEye, FaRegEyeSlash } from "react-icons/fa6";
+import api from "../api/Axios";
+
+
 
 const AuthPage = () => {
   const navigate = useNavigate();
@@ -9,6 +11,7 @@ const AuthPage = () => {
 
   const [isLogin, setIsLogin] = useState(location.pathname === "/login");
   const [showForgotModal, setShowForgotModal] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   // form fields
   const [fullName, setFullName] = useState("");
@@ -16,6 +19,7 @@ const AuthPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [forgotEmail, setForgotEmail] = useState("");
+  const [rememberMe, setRememberMe] = useState(false);
 
   useEffect(() => {
     setIsLogin(location.pathname === "/login");
@@ -26,12 +30,9 @@ const AuthPage = () => {
     navigate(newPath);
   };
 
-  // ==== Social login (demo only) ====
   const handleGoogleLogin = () => window.open("https://accounts.google.com/signin", "_blank");
-  const handleFacebookLogin = () => window.open("https://www.facebook.com/login", "_blank");
-  const handleTwitterLogin = () => window.open("https://x.com/i/flow/login", "_blank");
 
-  // ==== Forgot Password ====
+  // ==== Forgot Password Logic ====
   const handleForgotPassword = (e) => {
     e.preventDefault();
     setShowForgotModal(true);
@@ -54,39 +55,29 @@ const AuthPage = () => {
     }
   };
 
-  // ==== Login & Register ====
+  // ==== Login & Register Logic ====
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       if (isLogin) {
-        // ✅ LOGIN FLOW
+        // LOGIN
         const res = await api.post("/login", { email, password });
-
-        // get token (from backend)
-        const token =
-          res.data?.data?.tokens?.accessToken ||
-          res.data?.token ||
-          res.data?.accessToken;
+        const token = res.data?.data?.tokens?.accessToken || res.data?.token || res.data?.accessToken;
 
         if (!token) {
           alert("Login failed. Token not received.");
           return;
         }
 
-        // ✅ FIXED: Store token as "token" to match Navbar
         localStorage.setItem("token", token);
-        
-        // ✅ Also store as accessToken for API calls (if needed)
         localStorage.setItem("accessToken", token);
-        
-        // ✅ Dispatch event to update Navbar immediately
         window.dispatchEvent(new Event("authChanged"));
         
         alert("Login successful!");
         navigate("/dashboard");
       } else {
-        // ✅ REGISTER FLOW
-        const res = await api.post("/register", {
+        // REGISTER
+        await api.post("/register", {
           name: fullName,
           email,
           password,
@@ -104,103 +95,174 @@ const AuthPage = () => {
 
   // ==== UI ====
   return (
-    <div style={styles.container}>
-      <div style={styles.overlay}></div>
+    <div style={styles.pageBackground}>
+        {/* Import Fonts dynamically */}
+        <style>
+            {`
+            @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Poppins:wght@300;400;500;600&display=swap');
+            /* Custom Scrollbar for form panel */
+            .scroll-panel::-webkit-scrollbar {
+              width: 6px;
+            }
+            .scroll-panel::-webkit-scrollbar-track {
+              background: #f1f1f1; 
+            }
+            .scroll-panel::-webkit-scrollbar-thumb {
+              background: #ccc; 
+              border-radius: 3px;
+            }
+            .scroll-panel::-webkit-scrollbar-thumb:hover {
+              background: #aaa; 
+            }
+            `}
+        </style>
 
-      <div style={styles.card}>
-        <h1 style={styles.title}>{isLogin ? "Welcome Back" : "Join eScout"}</h1>
-        <p style={styles.subtitle}>
-          {isLogin
-            ? "Login to continue your esports journey"
-            : "Create your eScout account and start competing!"}
-        </p>
+      <div style={styles.mainContainer}>
+        
+        {/* --- LEFT SIDE: Artistic Image --- */}
+        <div style={styles.leftPanel}>
+            <div style={styles.leftContent}>
+                <div style={styles.quoteLabel}>
+                    <span style={styles.line}></span> GAMING
+                </div>
+                
+                <div style={styles.heroTextContainer}>
+                    <h1 style={styles.heroTitle}>The<br/>Fun Of<br/>Respawning</h1>
 
-        {/* Social Login */}
-        <div style={styles.socialContainer}>
-          <button style={styles.socialBtn} onClick={handleGoogleLogin}>
-            <FaGoogle style={{ ...styles.icon, color: "#DB4437" }} />
-          </button>
-          <button style={styles.socialBtn} onClick={handleFacebookLogin}>
-            <FaFacebookF style={{ ...styles.icon, color: "#1877F2" }} />
-          </button>
-          <button style={styles.socialBtn} onClick={handleTwitterLogin}>
-            <FaXTwitter style={{ ...styles.icon, color: "#000" }} />
-          </button>
+                </div>
+            </div>
+            {/* Abstract Overlay */}
+            <div style={styles.imageOverlay}></div>
         </div>
 
-        <div style={styles.divider}>
-          <span style={styles.line}></span>
-          <p style={styles.or}>or</p>
-          <span style={styles.line}></span>
+        {/* --- RIGHT SIDE: Form (Scrollable) --- */}
+        <div style={styles.rightPanel} className="scroll-panel">
+            <div style={styles.formWrapper}>
+                
+                <div style={styles.brandHeader}>
+                    <div style={styles.logo}>✨ eScout</div> 
+                </div>
+
+                <div style={styles.headerText}>
+                    <h2 style={styles.welcomeTitle}>{isLogin ? "Welcome Back" : "Create Account"}</h2>
+                    <p style={styles.welcomeSub}>
+                        {isLogin ? "Enter your email and password to access your account" : "Join the community and start competing today"}
+                    </p>
+                </div>
+
+                {/* Form */}
+                <form style={styles.form} onSubmit={handleSubmit}>
+                    
+                    {!isLogin && (
+                        <>
+                         <div style={styles.inputGroup}>
+                            <label style={styles.label}>Full Name</label>
+                            <input
+                                type="text"
+                                placeholder="Enter your full name"
+                                style={styles.input}
+                                value={fullName}
+                                onChange={(e) => setFullName(e.target.value)}
+                                required
+                            />
+                         </div>
+                         <div style={styles.inputGroup}>
+                            <label style={styles.label}>Role</label>
+                            <select
+                                name="role"
+                                style={styles.input}
+                                value={role}
+                                onChange={(e) => setRole(e.target.value)}
+                                required
+                            >
+                                <option value="">Select Role</option>
+                                <option value="player">Player</option>
+                                <option value="scout">Scout</option>
+                            </select>
+                         </div>
+                        </>
+                    )}
+
+                    <div style={styles.inputGroup}>
+                        <label style={styles.label}>Email</label>
+                        <input
+                            type="email"
+                            placeholder="Enter your email"
+                            style={styles.input}
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            required
+                        />
+                    </div>
+
+                    <div style={styles.inputGroup}>
+                        <label style={styles.label}>Password</label>
+                        <div style={styles.passwordWrapper}>
+                            <input
+                                type={showPassword ? "text" : "password"}
+                                placeholder="Enter your password"
+                                style={styles.inputPassword}
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                required
+                            />
+                            <span 
+                                onClick={() => setShowPassword(!showPassword)} 
+                                style={styles.eyeIcon}
+                            >
+                                {showPassword ? <FaRegEyeSlash /> : <FaRegEye />}
+                            </span>
+                        </div>
+                    </div>
+
+                    {/* Remember Me & Forgot Password Row */}
+                    {isLogin && (
+                        <div style={styles.optionsRow}>
+                            <label style={styles.checkboxLabel}>
+                                <input 
+                                    type="checkbox" 
+                                    checked={rememberMe} 
+                                    onChange={(e) => setRememberMe(e.target.checked)}
+                                    style={styles.checkbox}
+                                />
+                                Remember me
+                            </label>
+                            <button
+                                type="button"
+                                style={styles.forgotLink}
+                                onClick={handleForgotPassword}
+                            >
+                                Forgot Password?
+                            </button>
+                        </div>
+                    )}
+
+                    {/* Main Button */}
+                    <button type="submit" style={styles.signInBtn}>
+                        {isLogin ? "Sign In" : "Sign Up"}
+                    </button>
+
+                    {/* Google Button */}
+                    <button type="button" style={styles.googleBtn} onClick={handleGoogleLogin}>
+                        <FaGoogle style={{ marginRight: "10px", color: "#DB4437" }} /> 
+                        {isLogin ? "Sign In with Google" : "Sign Up with Google"}
+                    </button>
+
+                </form>
+
+                {/* Footer Switch - NOW VISIBLE */}
+                <div style={styles.footer}>
+                    <p style={styles.switchText}>
+                        {isLogin ? "Don't have an account? " : "Already have an account? "}
+                        <button style={styles.switchBtn} onClick={handleSwitch}>
+                            {isLogin ? "Sign Up" : "Log In"}
+                        </button>
+                    </p>
+                </div>
+
+            </div>
         </div>
 
-        {/* Main Form */}
-        <form style={styles.form} onSubmit={handleSubmit}>
-          {!isLogin && (
-            <>
-              <input
-                type="text"
-                placeholder="Full Name"
-                style={styles.input}
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
-                required
-              />
-              <select
-                name="role"
-                style={styles.input}
-                value={role}
-                onChange={(e) => setRole(e.target.value)}
-                required
-              >
-                <option value="">Select Role</option>
-                <option value="player">Player</option>
-                <option value="scout">Scout</option>
-              </select>
-            </>
-          )}
-
-          <input
-            type="email"
-            placeholder="Email Address"
-            style={styles.input}
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-
-          <input
-            type="password"
-            placeholder="Password"
-            style={styles.input}
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-
-          {isLogin && (
-            <button
-              type="button"
-              style={styles.forgotBtn}
-              onClick={handleForgotPassword}
-            >
-              Forgot Password?
-            </button>
-          )}
-
-          <button type="submit" style={styles.submitBtn}>
-            {isLogin ? "Login" : "Register"}
-          </button>
-        </form>
-
-        <div style={styles.footer}>
-          <p style={styles.switchText}>
-            {isLogin ? "Don't have an account?" : "Already have an account?"}{" "}
-            <button style={styles.switchBtn} onClick={handleSwitch}>
-              {isLogin ? "Register" : "Login"}
-            </button>
-          </p>
-        </div>
       </div>
 
       {/* Forgot Password Modal */}
@@ -209,7 +271,7 @@ const AuthPage = () => {
           <div style={styles.modal}>
             <h2 style={styles.modalTitle}>Confirm Your Email</h2>
             <p style={styles.modalText}>
-              Enter your registered email address to receive an OTP to reset password.
+              Enter your registered email address to receive an OTP.
             </p>
             <form onSubmit={handleConfirmEmail}>
               <input
@@ -218,12 +280,10 @@ const AuthPage = () => {
                 value={forgotEmail}
                 onChange={(e) => setForgotEmail(e.target.value)}
                 required
-                style={styles.input}
+                style={{...styles.input, width: '100%', marginBottom: '15px', boxSizing: 'border-box'}}
               />
               <div style={styles.modalButtons}>
-                <button type="submit" style={styles.submitBtn}>
-                  Send OTP
-                </button>
+                <button type="submit" style={styles.signInBtn}>Send OTP</button>
                 <button
                   type="button"
                   onClick={handleCloseModal}
@@ -242,146 +302,281 @@ const AuthPage = () => {
 
 /* === Styles === */
 const styles = {
-  container: {
+  pageBackground: {
     height: "100vh",
     width: "100%",
+    backgroundColor: "#000",
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
-    position: "relative",
-    backgroundImage: "url('https://cdn.wallpapersafari.com/15/78/zsvsR0.jpg')",
-    backgroundSize: "cover",
-    backgroundPosition: "center",
-    backgroundRepeat: "no-repeat",
     fontFamily: "'Poppins', sans-serif",
   },
-  overlay: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    height: "100%",
-    width: "100%",
-    backgroundColor: "rgba(0, 0, 0, 0.85)",
-    zIndex: 0,
+  mainContainer: {
+    width: "90%",
+    maxWidth: "1100px",
+    height: "85vh",
+    minHeight: "600px",
+    backgroundColor: "#fff",
+    borderRadius: "30px",
+    display: "flex",
+    overflow: "hidden", // Ensures the rounded corners clip the content
+    boxShadow: "0 20px 50px rgba(0,0,0,0.5)",
   },
-  card: {
+  
+  // === Left Panel ===
+  leftPanel: {
+    flex: "1",
     position: "relative",
+   backgroundImage: "url('https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=2070&auto=format&fit=crop')",
+    backgroundSize: "cover",
+    backgroundPosition: "center",
+    display: "flex", // Default flex for left panel
+    flexDirection: "column",
+    justifyContent: "space-between",
+    padding: "60px",
+    color: "#fff",
+  },
+  // Ensure left panel is hidden on very small screens if desired, or keep as is
+  imageOverlay: {
+    position: "absolute",
+    top: 0, 
+    left: 0,
+    width: "100%",
+    height: "100%",
+    background: "linear-gradient(to bottom, rgba(0,0,0,0.1), rgba(0,0,0,0.6))",
     zIndex: 1,
-    width: "380px",
-    background: "rgba(20, 20, 20, 0.85)",
-    backdropFilter: "blur(10px)",
-    borderRadius: "18px",
-    padding: "40px 45px",
-    color: "#fff",
-    textAlign: "center",
-    boxShadow: "0 0 40px rgba(172, 114, 67, 0.34)",
   },
-  title: { fontSize: "30px", color: "#be5e1e", marginBottom: "8px" },
-  subtitle: { color: "#aaa", fontSize: "14px", marginBottom: "25px" },
-  socialContainer: {
+  leftContent: {
+    position: "relative",
+    zIndex: 2,
+    height: "100%",
     display: "flex",
-    justifyContent: "center",
-    gap: "18px",
-    marginBottom: "22px",
+    flexDirection: "column",
+    justifyContent: "space-between",
   },
-  socialBtn: {
-    width: "45px",
-    height: "45px",
-    borderRadius: "50%",
-    background: "#fff",
-    border: "none",
+  quoteLabel: {
+    fontSize: "12px",
+    letterSpacing: "2px",
+    textTransform: "uppercase",
     display: "flex",
     alignItems: "center",
-    justifyContent: "center",
-    cursor: "pointer",
-  },
-  icon: { fontSize: "20px" },
-  divider: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: "25px",
-  },
-  line: { flex: 1, height: "1px", backgroundColor: "#333" },
-  or: { margin: "0 10px", fontSize: "13px", color: "#777" },
-  form: { display: "flex", flexDirection: "column", gap: "14px" },
-  input: {
-    padding: "12px 14px",
-    borderRadius: "8px",
-    border: "none",
-    backgroundColor: "#1a1a1a",
-    color: "#fff",
-    outline: "none",
-    fontSize: "15px",
-  },
-  forgotBtn: {
-    background: "transparent",
-    border: "none",
-    color: "#5771f2ff",
+    gap: "10px",
     fontWeight: "500",
-    textAlign: "right",
-    fontSize: "13px",
-    cursor: "pointer",
-    marginTop: "-6px",
-    marginBottom: "10px",
   },
-  submitBtn: {
-    backgroundColor: "#b35313ff",
+  line: {
+    width: "30px",
+    height: "1px",
+    backgroundColor: "#fff",
+  },
+  heroTextContainer: {
+    marginBottom: "20px",
+  },
+  heroTitle: {
+    fontFamily: "'Playfair Display', serif",
+    fontSize: "56px",
+    lineHeight: "1.1",
+    marginBottom: "20px",
+    fontWeight: "400",
+  },
+  heroSubtitle: {
+    fontSize: "14px",
+    opacity: "0.8",
+    maxWidth: "300px",
+    lineHeight: "1.6",
+  },
+
+  // === Right Panel (UPDATED) ===
+  rightPanel: {
+    flex: "1",
+    backgroundColor: "#fff",
+    display: "flex",
+    flexDirection: "column",
+    // Remove centered vertical alignment to allow scrolling from top
+    alignItems: "center", 
+    padding: "30px 40px", // Reduced top/bottom padding
+    position: "relative",
+    overflowY: "auto", // SCROLL ENABLED
+  },
+  formWrapper: {
+    width: "100%",
+    maxWidth: "380px",
+    margin: "auto 0", // Center vertically if space exists
+  },
+  brandHeader: {
+    display: "flex",
+    justifyContent: "flex-end", // Align logo to right
+    marginBottom: "20px",
+  },
+  logo: {
+    fontWeight: "bold",
+    fontSize: "18px",
     color: "#000",
+  },
+  headerText: {
+    marginBottom: "25px",
+    textAlign: "left",
+  },
+  welcomeTitle: {
+    fontFamily: "'Playfair Display', serif",
+    fontSize: "32px",
+    color: "#000",
+    marginBottom: "8px",
+    fontWeight: "600",
+  },
+  welcomeSub: {
+    color: "#666",
+    fontSize: "14px",
+    lineHeight: "1.4",
+  },
+  form: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "14px", // Reduced gap to fit better
+  },
+  inputGroup: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "5px",
+  },
+  label: {
+    fontSize: "13px",
+    fontWeight: "600",
+    color: "#333",
+  },
+  input: {
+    padding: "12px 16px", // Slightly more compact
+    borderRadius: "10px",
     border: "none",
-    padding: "12px",
-    borderRadius: "8px",
+    backgroundColor: "#f4f6f8",
+    color: "#333",
+    fontSize: "14px",
+    outline: "none",
+    transition: "box-shadow 0.2s",
+  },
+  passwordWrapper: {
+    position: "relative",
+    display: "flex",
+    alignItems: "center",
+    backgroundColor: "#f4f6f8",
+    borderRadius: "10px",
+  },
+  inputPassword: {
+    flex: 1,
+    padding: "12px 16px",
+    borderRadius: "10px",
+    border: "none",
+    backgroundColor: "transparent",
+    color: "#333",
+    fontSize: "14px",
+    outline: "none",
+  },
+  eyeIcon: {
+    padding: "0 15px",
+    cursor: "pointer",
+    color: "#777",
+    display: "flex",
+    alignItems: "center",
+  },
+  optionsRow: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    fontSize: "13px",
+    marginTop: "-5px",
+  },
+  checkboxLabel: {
+    display: "flex",
+    alignItems: "center",
+    gap: "8px",
+    color: "#666",
+    cursor: "pointer",
+  },
+  checkbox: {
+    accentColor: "#000",
+  },
+  forgotLink: {
+    background: "none",
+    border: "none",
+    color: "#000",
+    fontWeight: "600",
+    cursor: "pointer",
+    fontSize: "13px",
+  },
+  signInBtn: {
+    backgroundColor: "#000",
+    color: "#fff",
+    padding: "14px",
+    borderRadius: "10px",
     fontWeight: "600",
     fontSize: "15px",
-    marginTop: "10px",
+    border: "none",
     cursor: "pointer",
+    marginTop: "5px",
   },
-  cancelBtn: {
-    backgroundColor: "transparent",
-    border: "1px solid #be5e1e",
-    color: "#be5e1e",
-    padding: "10px 14px",
-    borderRadius: "8px",
+  googleBtn: {
+    backgroundColor: "#fff",
+    border: "1px solid #e1e1e1",
+    padding: "14px",
+    borderRadius: "10px",
     fontWeight: "500",
+    fontSize: "14px",
+    color: "#333",
     cursor: "pointer",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: "0px",
   },
-  footer: { marginTop: "20px" },
-  switchText: { color: "#bbb", fontSize: "13px" },
+  footer: {
+    marginTop: "25px",
+    textAlign: "center",
+    paddingBottom: "10px", // Ensure padding at bottom for scroll
+  },
+  switchText: {
+    fontSize: "13px",
+    color: "#666",
+  },
   switchBtn: {
     background: "none",
     border: "none",
-    color: "#be5e1e",
-    fontWeight: "600",
+    color: "#000",
+    fontWeight: "700",
     cursor: "pointer",
+    textDecoration: "underline", // Added underline to make it distinct
+    marginLeft: "5px",
   },
+
+  // === Modal ===
   modalOverlay: {
     position: "fixed",
     top: 0,
     left: 0,
     width: "100%",
     height: "100%",
-    backgroundColor: "rgba(0,0,0,0.8)",
+    backgroundColor: "rgba(0,0,0,0.6)",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    zIndex: 10,
+    zIndex: 100,
   },
   modal: {
-    background: "rgba(25,25,25,0.95)",
+    background: "#fff",
     padding: "30px",
     borderRadius: "16px",
-    width: "340px",
+    width: "350px",
     textAlign: "center",
-    color: "#fff",
-    boxShadow: "0 0 25px rgba(149, 92, 34, 0.86)",
+    boxShadow: "0 10px 30px rgba(0,0,0,0.2)",
   },
-  modalTitle: { fontSize: "22px", color: "#be5e1e", marginBottom: "10px" },
-  modalText: { fontSize: "14px", color: "#bbb", marginBottom: "18px" },
-  modalButtons: {
-    display: "flex",
-    justifyContent: "space-between",
-    marginTop: "15px",
-  },
+  modalTitle: { fontSize: "20px", color: "#000", marginBottom: "10px", fontFamily: "'Playfair Display', serif" },
+  modalText: { fontSize: "14px", color: "#666", marginBottom: "20px" },
+  modalButtons: { display: "flex", flexDirection: "column", gap: "10px" },
+  cancelBtn: {
+    background: "transparent",
+    border: "none",
+    color: "#666",
+    padding: "10px",
+    cursor: "pointer",
+  }
 };
 
 export default AuthPage;

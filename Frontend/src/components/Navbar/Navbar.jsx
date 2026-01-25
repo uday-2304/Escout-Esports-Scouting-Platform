@@ -2,68 +2,53 @@ import React, { useState, useEffect, useRef } from "react";
 import "./Navbar.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-  faSearch,
   faUser,
   faBars,
   faTimes,
   faBell,
+  faSignOutAlt,
+  faIdCard,
+  faGamepad 
 } from "@fortawesome/free-solid-svg-icons";
 import { NavLink, useNavigate } from "react-router-dom";
 
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [notifOpen, setNotifOpen] = useState(false);
-  const [searchOpen, setSearchOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem("token"));
 
   const navigate = useNavigate();
   const dropdownRef = useRef(null);
-  const notifRef = useRef(null);
-  const searchRef = useRef(null);
 
-  // 🧠 Update login status whenever token changes
+  // 🧠 Auth Listener: Updates UI when login state changes
   useEffect(() => {
     const handleAuthChange = () => {
       setIsLoggedIn(!!localStorage.getItem("token"));
     };
-
-    // Listen for changes from any component (like login/logout)
     window.addEventListener("authChanged", handleAuthChange);
-
-    // Also check when localStorage changes (e.g., in another tab)
     window.addEventListener("storage", handleAuthChange);
-
     return () => {
       window.removeEventListener("authChanged", handleAuthChange);
       window.removeEventListener("storage", handleAuthChange);
     };
   }, []);
 
-  // 🧠 Close dropdowns if clicking outside
+  // 🧠 Click Outside Handler: Closes dropdown when clicking elsewhere
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(event.target) &&
-        notifRef.current &&
-        !notifRef.current.contains(event.target) &&
-        searchRef.current &&
-        !searchRef.current.contains(event.target)
-      ) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setDropdownOpen(false);
-        setNotifOpen(false);
-        setSearchOpen(false);
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // 🚪 Handle logout
+  // 🚪 Handle Logout
   const handleLogout = () => {
     localStorage.removeItem("token");
-    window.dispatchEvent(new Event("authChanged")); // notify others
+    // Dispatch event so other components know auth state changed
+    window.dispatchEvent(new Event("authChanged"));
     setDropdownOpen(false);
     navigate("/login");
   };
@@ -71,23 +56,23 @@ const Navbar = () => {
   return (
     <header>
       <div className="navbar">
-        <div className="logo">eSCØUt</div>
+        
+        {/* LOGO - Matches the Hero aesthetic */}
+        <div className="logo" onClick={() => navigate('/')}>
+          eSC<span>Ø</span>Ut
+        </div>
 
-        {/* Menu Button */}
+        {/* MOBILE MENU TOGGLE */}
         <div className="menu-toggle" onClick={() => setMenuOpen(!menuOpen)}>
           <FontAwesomeIcon icon={menuOpen ? faTimes : faBars} />
         </div>
 
-        {/* Navigation Links */}
+        {/* NAVIGATION LINKS */}
         <nav className={`nav-links ${menuOpen ? "open" : ""}`}>
           <NavLink to="/" className="nav-item" onClick={() => setMenuOpen(false)}>
             Home
           </NavLink>
-          <NavLink
-            to="/arena-hub"
-            className="nav-item"
-            onClick={() => setMenuOpen(false)}
-          >
+          <NavLink to="/arena-hub" className="nav-item" onClick={() => setMenuOpen(false)}>
             Arena Hub
           </NavLink>
           <NavLink to="/dashboard" className="nav-item" onClick={() => setMenuOpen(false)}>
@@ -101,59 +86,43 @@ const Navbar = () => {
           </NavLink>
         </nav>
 
-        {/* Right Side Icons */}
+        {/* RIGHT ACTIONS */}
         <div className="nav-actions">
-          {/* Search box (Desktop) */}
-          <div className="search-box desktop-search">
-            <input type="text" placeholder="Search products..." />
-            <FontAwesomeIcon icon={faSearch} className="icon" />
-          </div>
-
-          {/* Search Icon for Mobile */}
-          <div className="mobile-search" ref={searchRef}>
-            <FontAwesomeIcon
-              icon={faSearch}
-              className="icon"
-              onClick={() => setSearchOpen((prev) => !prev)}
-            />
-            {searchOpen && (
-              <div className="search-dropdown">
-                <input type="text" placeholder="Search site..." autoFocus />
-              </div>
-            )}
-          </div>
-
-          {/* Notification Icon */}
-          <NavLink to="/messages" className="notification" ref={notifRef}>
-            <FontAwesomeIcon icon={faBell} className="icon" />
+          
+          {/* Notification Bell */}
+          <NavLink to="/messages" className="notification">
+            <FontAwesomeIcon icon={faBell} />
+            {/* Notification Badge */}
             <span className="notif-count">5</span>
           </NavLink>
 
-          {/* 🧍 Profile Dropdown */}
+          {/* Profile Dropdown */}
           <div className="profile" ref={dropdownRef}>
             <FontAwesomeIcon
               icon={faUser}
-              className="icon profile-icon"
+              className="profile-icon"
               onClick={() => setDropdownOpen((prev) => !prev)}
             />
 
             {dropdownOpen && (
               <div className="profile-dropdown">
+                
+                {/* Profile Link */}
                 <NavLink
                   to="/profile"
                   className="dropdown-item"
                   onClick={() => setDropdownOpen(false)}
                 >
-                  Profile
+                  <FontAwesomeIcon icon={faIdCard} /> Profile
                 </NavLink>
 
-                {/* 🔐 Dynamic Login / Logout button */}
+                {/* Conditional Login/Logout */}
                 {isLoggedIn ? (
                   <button
                     className="dropdown-item logout-btn"
                     onClick={handleLogout}
                   >
-                    Logout
+                    <FontAwesomeIcon icon={faSignOutAlt} /> Logout
                   </button>
                 ) : (
                   <NavLink
@@ -164,7 +133,7 @@ const Navbar = () => {
                       navigate("/login");
                     }}
                   >
-                    Login
+                    <FontAwesomeIcon icon={faGamepad} /> Login
                   </NavLink>
                 )}
               </div>

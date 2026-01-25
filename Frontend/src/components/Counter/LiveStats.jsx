@@ -1,6 +1,6 @@
 import React from "react";
 import CountUp from "react-countup";
-import "./LiveStats.css"; // 👈 Import the CSS file
+import "./LiveStats.css";
 
 const LiveStats = () => {
   const stats = [
@@ -11,24 +11,31 @@ const LiveStats = () => {
 
   return (
     <section className="live-stats">
-      <h2 className="live-stats-title">
-        Global e-Sports Community Growing Fast 🚀
-      </h2>
+      <div className="live-stats-content">
+        <h2 className="live-stats-title">
+          Community <span>Growth</span>
+        </h2>
 
-      <div className="live-stats-grid">
-        {stats.map((item, index) => (
-          <div key={index} className="live-stats-card">
-            <h3 className="live-stats-number">
-              <CountUp
-                end={item.value}
-                duration={3.0}
-                separator=","
-                suffix={item.suffix}
-              />
-            </h3>
-            <p className="live-stats-label">{item.label}</p>
-          </div>
-        ))}
+        <div className="live-stats-grid">
+          {stats.map((item, index) => (
+            <div key={index} className="live-stats-card">
+              {/* Optional: Add icon here if desired */}
+              
+              <h3 className="live-stats-number">
+                <CountUp
+                  start={0}
+                  end={item.value}
+                  duration={3.5}
+                  separator=","
+                  suffix={item.suffix}
+                  enableScrollSpy={true} // Animates when scrolled into view
+                  scrollSpyOnce={true}
+                />
+              </h3>
+              <p className="live-stats-label">{item.label}</p>
+            </div>
+          ))}
+        </div>
       </div>
     </section>
   );

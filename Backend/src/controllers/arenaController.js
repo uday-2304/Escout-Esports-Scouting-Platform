@@ -104,7 +104,9 @@ export const getArenaVideos = async (req, res) => {
     }
 
     res.json(videosByGame);
-  } catch (err) {
+  } 
+  
+  catch (err) {
     console.error("ARENA ERROR:", err.response?.data || err.message);
     res.status(500).json({ error: "Arena fetch failed" });
   }
