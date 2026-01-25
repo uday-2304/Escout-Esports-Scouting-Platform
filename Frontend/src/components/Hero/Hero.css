@@ -2,7 +2,8 @@
 @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Orbitron:wght@400;500;800;900&family=Inter:wght@400;500&display=swap');
 
 :root {
-  --neon-purple: #a50000;
+  --neon-red: #ff0000; /* Bright Red for accents */
+  --deep-red: #a50000; /* Darker red for theme */
   --tech-white: #ffffff;
   --tech-gray: #cbd5e1;
   --bg-black: #000000;
@@ -26,37 +27,56 @@
   font-family: 'Rajdhani', sans-serif;
 }
 
-/* ================= LEFT SIDE: IMAGE SECTION ================= */
+/* ================= LEFT SIDE: MEDIA SECTION ================= */
 .hero-image-wrapper {
   position: relative;
-  width: 50%; /* Exactly half width */
+  width: 50%;
   height: 100%;
-  /* Creates a 'letterbox' feel if image isn't tall enough, or crops nicely */
   display: flex;
   align-items: center; 
   justify-content: center;
 }
 
-.hero-img {
+/* New Container to hold Video + Red Tint together */
+.hero-media-box {
+  position: relative;
+  /* Keeping the exact size you wanted */
   width: 75%;
   height: 70%;
-  object-fit: cover;
-  /* Slight cinematic drift */
-  animation: cinematicPan 30s infinite alternate ease-in-out;
+  overflow: hidden; /* Ensures video stays inside */
+  box-shadow: 0 0 30px rgba(165, 0, 0, 0.2); /* Optional: Red glow around box */
 }
 
-@keyframes cinematicPan {
-  from { transform: scale(1.05); }
-  to { transform: scale(1.10) translateX(-15px); }
+/* The Video itself */
+.hero-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* Optional: Make video slightly grayscale so red pops more */
+  filter: grayscale(80%) contrast(1.2); 
+  transform: scale(1.05); /* Slight zoom to prevent black edges on pan */
+}
+
+/* THE RED COATING */
+.red-coating {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  /* This creates the red tint effect */
+  background: linear-gradient(135deg, rgba(165, 0, 0, 0.6), rgba(80, 0, 0, 0.8));
+  mix-blend-mode: multiply; /* Blends red into the video */
+  z-index: 1;
+  pointer-events: none;
 }
 
 /* --- THE "RICH" FADE --- */
-/* This gradient blends the image seamlessly into the black text area */
 .hero-image-overlay {
   position: absolute;
   top: 0;
   right: 0;
-  width: 20%; /* Broad fade for smoothness */
+  width: 20%;
   height: 100%;
   background: linear-gradient(to right, transparent 0%, var(--bg-black) 100%);
   z-index: 2;
@@ -69,14 +89,13 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
-  /* Massive padding for that "High-End" whitespace look */
   padding-left: 20px; 
   padding-right: 100px;
   z-index: 10;
   background: var(--bg-black);
 }
 
-/* ================= CONTINUOUS ANIMATION (ABOVE TEXT) ================= */
+/* ================= ANIMATIONS & PARTICLES ================= */
 .tech-header-anim {
   position: relative;
   width: 100%;
@@ -89,11 +108,11 @@
   animation: fadeIn 1.5s ease-out forwards 0.2s;
 }
 
-/* Digital particles */
 .particle-stream {
   position: absolute;
   height: 4px;
-  background: linear-gradient(90deg, transparent, #ff0000, transparent);
+  /* Updated to Red Stream */
+  background: linear-gradient(90deg, transparent, var(--neon-red), transparent);
   animation: streamMove 5s linear infinite;
   opacity: 0.9;
 }
@@ -106,25 +125,29 @@
   100% { transform: translateX(800px); }
 }
 
-/* ================= TYPOGRAPHY (RICH & LARGE) ================= */
+/* ================= TYPOGRAPHY ================= */
 .hero-text-wrapper h1 {
   font-family: 'Orbitron', sans-serif;
-  /* Massive, responsive size for impact */
   font-size: clamp(60px, 8vw, 110px); 
   font-weight: 900;
   text-transform: uppercase;
   color: var(--tech-white);
   margin-bottom: 30px;
   letter-spacing: 2px;
-  line-height: 0.95; /* Tight leading for punchy look */
+  line-height: 0.95;
   opacity: 0;
   transform: translateX(40px);
   animation: slideInRight 1s cubic-bezier(0.2, 0.8, 0.2, 1) forwards 0.4s;
 }
 
+/* Add a red accent to the text hover or selection if desired */
+.hero-text-wrapper h1::selection {
+  background: var(--neon-red);
+}
+
 .hero-text-wrapper p {
   font-family: 'Rajdhani', sans-serif;
-  font-size: 20px; /* Increased size */
+  font-size: 20px;
   line-height: 1.6;
   font-weight: 400;
   color: var(--tech-gray);
@@ -134,31 +157,25 @@
   animation: slideInRight 1s cubic-bezier(0.2, 0.8, 0.2, 1) forwards 0.6s;
 }
 
-/* ================= TECH FRAME UI (Minimalist) ================= */
+/* ================= TECH FRAME UI ================= */
 .tech-frame {
   position: absolute;
-  inset: 40px; /* More spacing from edges */
-  border: 1px solid rgba(255, 255, 255, 0.05); /* Ultra subtle */
+  inset: 40px;
+  border: 1px solid rgba(255, 0, 0, 0.1); /* Subtle Red Border */
   z-index: 20;
   pointer-events: none;
 }
 
-
-
-.tech-frame::before { top: -1px; left: -1px; border-right: none; border-bottom: none; }
-.tech-frame::after { bottom: -1px; right: -1px; border-left: none; border-top: none; }
-
-/* Crosshairs */
 .crosshair {
   position: absolute;
-  color: rgba(255, 255, 255, 0.2);
+  color: var(--neon-red); /* Red Crosshairs */
   font-size: 16px;
   font-weight: 300;
 }
 .crosshair.tl { top: 40px; left: 40px; }
 .crosshair.br { bottom: 40px; right: 40px; }
 
-/* ================= ANIMATIONS ================= */
+/* ================= KEYFRAMES ================= */
 @keyframes slideInRight {
   to { opacity: 1; transform: translateX(0); }
 }
@@ -168,18 +185,16 @@
 
 /* ================= RESPONSIVE ================= */
 @media (max-width: 1024px) {
-  /* On tablets/laptops, reduce font slightly */
   .hero-text-wrapper h1 { font-size: 70px; }
   .hero-text-wrapper { padding-right: 50px; }
 }
 
 @media (max-width: 992px) {
-  /* Stack on Mobile */
   .hero-container { flex-direction: column; }
   .hero-image-wrapper { width: 100%; height: 50%; }
   .hero-text-wrapper { width: 100%; height: 50%; padding: 40px; text-align: center; align-items: center; }
   
-  /* Change fade direction for mobile */
+  /* Mobile Fade */
   .hero-image-overlay {
     width: 100%; height: 50%; top: auto; bottom: 0; right: 0;
     background: linear-gradient(to bottom, transparent, var(--bg-black));

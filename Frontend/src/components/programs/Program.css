@@ -1,211 +1,232 @@
-@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Orbitron:wght@400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Teko:wght@400;600&display=swap');
 
 :root {
-  --primary: #7000ff;
-  --secondary: #00f3ff;
-  --bg-deep: #050714;
-  --glass: rgba(255, 255, 255, 0.05);
-  --border-subtle: rgba(255, 255, 255, 0.1);
+  --red-primary: #ff001f;
+  --bg-black: #080808;
+  --bg-dark: #111;
+  --text-white: #f0f0f0;
 }
 
-/* --- Wrapper: Deep Dark Background --- */
-.carousel-wrapper {
+/* --- SECTION CONTAINER --- */
+.program-section {
+  background-color: var(--bg-black);
+  padding: 80px 20px;
+  font-family: 'Rajdhani', sans-serif;
+  color: var(--text-white);
+  text-align: center;
+}
+
+/* --- HEADER --- */
+.program-header {
+  margin-bottom: 50px;
+}
+
+.program-title {
+  font-family: 'Teko', sans-serif;
+  font-size: 3.5rem;
+  text-transform: uppercase;
+  margin: 0;
+  line-height: 1;
+  letter-spacing: 2px;
+}
+
+.text-red {
+  color: var(--red-primary);
+  text-shadow: 0 0 15px rgba(255, 0, 31, 0.4);
+}
+
+.program-subtitle {
+  color: #666;
+  font-size: 1rem;
+  letter-spacing: 4px;
+  margin-top: 5px;
+  text-transform: uppercase;
+}
+
+/* --- GRID LAYOUT --- */
+.games-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
+  gap: 30px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* --- GAME CARD --- */
+.game-card {
   position: relative;
-  width: 100%;
-  background: var(--bg-deep);
-  padding: 80px 0; /* More breathing room */
+  background: var(--bg-dark);
+  border: 1px solid #222; 
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  cursor: pointer;
+  text-align: left;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  border-top: 1px solid var(--border-subtle);
-  border-bottom: 1px solid var(--border-subtle);
+  /* Important: Ensure bullets can appear outside the card */
+  overflow: visible; 
+  z-index: 1;
 }
 
-/* Background Glow Effect */
-.carousel-wrapper::before {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 80%;
-  height: 200px;
-  background: radial-gradient(circle, rgba(112, 0, 255, 0.15) 0%, transparent 70%);
-  pointer-events: none;
+/* Card Hover: Slight Lift */
+.game-card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+  border-color: #333;
+  z-index: 10; /* Bring to front so bullets don't get hidden by neighbors */
 }
 
-/* --- Section Title --- */
-.carousel-title {
-  font-family: 'Orbitron', sans-serif;
-  color: #fff;
-  font-size: 24px;
-  letter-spacing: 4px;
-  text-transform: uppercase;
-  margin-bottom: 40px;
-  text-align: center;
+/* --- IMAGE AREA --- */
+.card-media {
+  height: 220px;
+  width: 100%;
   position: relative;
-  z-index: 2;
+  overflow: hidden; /* Image stays inside */
 }
 
-.carousel-title span {
-  color: var(--primary);
-}
-
-/* --- Scroll Track --- */
-.carousel-container {
-  display: flex;
-  gap: 30px; /* Increased gap */
-  overflow-x: auto;
-  scroll-behavior: smooth;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-  width: 90%;
-  padding: 20px 10px; /* Padding for hover growth */
-  z-index: 2;
-}
-
-.carousel-container::-webkit-scrollbar {
-  display: none;
-}
-
-/* --- Card Item --- */
-.carousel-item {
-  position: relative;
-  flex: 0 0 auto;
-  width: 320px;
-  height: 450px; /* Portrait orientation looks more premium for games */
-  border-radius: 12px;
-  overflow: hidden;
-  transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
-  background: #000;
-  border: 1px solid var(--border-subtle);
-  cursor: pointer;
-}
-
-/* Image Styling */
-.carousel-item img {
+.card-media img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.6s ease, filter 0.4s ease;
-  filter: grayscale(30%); /* Cinematic look */
+  transition: transform 0.5s ease;
+  filter: brightness(0.9);
 }
 
-/* --- Hover Effects --- */
-.carousel-item:hover {
-  transform: translateY(-10px);
-  border-color: var(--primary);
-  box-shadow: 0 0 30px rgba(112, 0, 255, 0.3);
-}
-
-.carousel-item:hover img {
+.game-card:hover .card-media img {
   transform: scale(1.1);
-  filter: grayscale(0%);
+  filter: brightness(1.1);
 }
 
-/* --- Tech Overlay (Gradient + Text) --- */
-.image-overlay {
+.overlay-gradient {
   position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(to top, rgba(5, 7, 20, 0.95) 0%, rgba(5, 7, 20, 0.1) 50%, transparent 100%);
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: linear-gradient(to top, rgba(17,17,17, 1) 0%, transparent 80%);
+  opacity: 0.9;
+}
+
+/* --- TEXT & BUTTON --- */
+.card-details {
+  padding: 20px;
+  background: #111;
+  flex-grow: 1;
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
-  padding: 25px;
-  opacity: 1; /* Always visible but subtle */
-}
-
-/* Text Styling */
-.image-title {
-  color: #fff;
-  font-family: 'Rajdhani', sans-serif;
-  font-size: 28px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  margin-bottom: 5px;
-  text-shadow: 0 0 10px rgba(0,0,0,0.8);
-  transform: translateY(0);
-  transition: transform 0.3s;
-}
-
-.image-subtitle {
-  color: var(--secondary);
-  font-family: 'Orbitron', sans-serif;
-  font-size: 10px;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  opacity: 0;
-  transform: translateY(10px);
-  transition: all 0.3s ease;
-}
-
-/* Reveal Subtitle on Hover */
-.carousel-item:hover .image-title {
-  transform: translateY(-5px);
-}
-
-.carousel-item:hover .image-subtitle {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-/* --- Controls (Arrows) --- */
-.controls-container {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none; /* Let clicks pass through to cards */
-  display: flex;
   justify-content: space-between;
-  align-items: center;
-  padding: 0 20px;
-  z-index: 10;
+  gap: 20px;
+  position: relative;
+  /* Hide the gap between image and text if any */
+  margin-top: -1px; 
 }
 
-.arrow {
-  pointer-events: auto; /* Re-enable clicks */
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(10px);
-  border: 1px solid var(--border-subtle);
+.game-genre {
+  font-size: 0.8rem;
+  color: #666;
+  letter-spacing: 1.5px;
+  font-weight: 700;
+  display: block;
+  margin-bottom: 5px;
+  transition: color 0.3s;
+}
+
+.game-card:hover .game-genre {
+  color: var(--red-primary);
+}
+
+.game-name {
+  font-family: 'Teko', sans-serif;
+  font-size: 2.2rem;
+  margin: 0;
   color: #fff;
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  line-height: 0.9;
+  text-transform: uppercase;
+}
+
+/* --- BUTTON & SCOPE ROTATION --- */
+.card-action-btn {
+  background: #1a1a1a;
+  border: none;
+  color: #aaa;
+  padding: 12px 0;
+  width: 100%;
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  letter-spacing: 1px;
   cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
   transition: all 0.3s ease;
 }
 
-.arrow:hover {
-  background: var(--primary);
-  border-color: var(--primary);
-  box-shadow: 0 0 20px rgba(112, 0, 255, 0.5);
-  transform: scale(1.1);
+.card-action-btn:hover {
+  background: var(--red-primary);
+  color: #fff;
+  box-shadow: 0 5px 15px rgba(255, 0, 31, 0.4);
 }
 
-/* --- Responsive --- */
-@media (max-width: 768px) {
-  .carousel-item {
-    width: 260px;
-    height: 380px;
-  }
-  
-  .carousel-title {
-    font-size: 20px;
-  }
+/* THE SCOPE ICON ROTATION */
+.scope-icon {
+  transition: transform 0.5s ease;
+}
 
-  .arrow {
-    width: 40px;
-    height: 40px;
+.card-action-btn:hover .scope-icon {
+  /* Infinite spin */
+  animation: spinScope 2s linear infinite; 
+}
+
+@keyframes spinScope {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* --- THE "BULLET" POP-UPS --- */
+.bullet {
+  position: absolute;
+  width: 12px;   /* Length of bullet */
+  height: 4px;   /* Thickness of bullet */
+  background: var(--red-primary);
+  border-radius: 2px; /* Rounds the tip */
+  box-shadow: 0 0 8px var(--red-primary);
+  transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55); /* Bouncy pop */
+  opacity: 0; 
+  z-index: -1; /* Start behind the card */
+}
+
+/* Positioning initial state (Hidden behind corners) */
+.b-tl { top: 10px; left: 10px; transform: rotate(-45deg); }
+.b-tr { top: 10px; right: 10px; transform: rotate(45deg); }
+.b-bl { bottom: 10px; left: 10px; transform: rotate(45deg); }
+.b-br { bottom: 10px; right: 10px; transform: rotate(-45deg); }
+
+/* HOVER STATE: FIRE BULLETS OUTWARDS */
+.game-card:hover .bullet {
+  opacity: 1;
+}
+
+.game-card:hover .b-tl { 
+  top: -8px; 
+  left: -8px; 
+}
+
+.game-card:hover .b-tr { 
+  top: -8px; 
+  right: -8px; 
+}
+
+.game-card:hover .b-bl { 
+  bottom: -8px; 
+  left: -8px; 
+}
+
+.game-card:hover .b-br { 
+  bottom: -8px; 
+  right: -8px; 
+}
+
+/* Mobile Fixes */
+@media (max-width: 768px) {
+  .games-grid {
+    grid-template-columns: repeat(1, 1fr);
   }
 }

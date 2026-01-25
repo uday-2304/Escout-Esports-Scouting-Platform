@@ -1,60 +1,105 @@
 import React from "react";
 import "./Footer.css";
-import { FaFacebookF, FaInstagram, FaTwitter, FaYoutube, FaDiscord } from "react-icons/fa";
-import Img9 from "../../assets/img9.jpg"; // your banner image
+import { FaInstagram, FaTwitter, FaYoutube, FaDiscord, FaArrowRight, FaEnvelope } from "react-icons/fa";
+
+import FooterImg from "../../assets/Footer.jpg"; 
 
 const Footer = () => {
+
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth"
+    });
+  };
+
   return (
-    <footer className="footer">
-      {/* Image Banner above footer */}
-      <div className="footer-banner">
-        <img src={Img9} alt="eSports Banner" />
-      </div>
-
-      <div className="footer-container">
-        {/* Branding */}
-        <div className="footer-brand">
-          <h2>eScout</h2>
-          <p>Connecting gamers to pro eSports teams worldwide.</p>
-        </div>
-
-        {/* Quick Links */}
-        <div className="footer-links">
-          <h3>Quick Links</h3>
-          <ul>
-            <li><a href="#">Home</a></li>
-            <li><a href="#">About</a></li>
-            <li><a href="#">Players</a></li>
-            <li><a href="#">Scouts</a></li>
-            <li><a href="#">Contact</a></li>
-          </ul>
-        </div>
-
-        {/* Newsletter */}
-        <div className="footer-newsletter">
-          <h3>Join Our Newsletter</h3>
-          <p>Get the latest updates on top players and tournaments.</p>
-          <div className="newsletter-form">
-            <input type="email" placeholder="Enter your email" />
-            <button>Subscribe</button>
-          </div>
-        </div>
-
-        {/* Social Media */}
-        <div className="footer-social">
-          <h3>Follow Us</h3>
-          <div className="social-icons">
-            <a href="#"><FaFacebookF /></a>
-            <a href="#"><FaInstagram /></a>
-            <a href="#"><FaTwitter /></a>
-            <a href="#"><FaYoutube /></a>
-            <a href="#"><FaDiscord /></a>
+    <footer className="footer-wrapper">
+      
+      {/* === BANNER SECTION === */}
+      <div className="footer-banner" style={{ backgroundImage: `url(${FooterImg})` }}>
+        
+        {/* The overlay handles the Red Background + Yellow Sun effect */}
+        <div className="banner-overlay">
+          <div className="cta-content">
+            <h2 className="cta-title">THE ARENA <span className="text-stroke">AWAITS</span></h2>
+            <p className="cta-desc">
+              Don't just spectate. Upload your clips, get ranked, and join the elite. 
+            </p>
+            
           </div>
         </div>
       </div>
 
-      <div className="footer-bottom">
-        <p>© 2025 eScout. All rights reserved.</p>
+      {/* === MAIN FOOTER UI (Black Background) === */}
+      <div className="footer-body">
+        <div className="footer-grid">
+          
+          {/* 1. BRANDING */}
+          <div className="footer-column brand-col">
+            <h1 className="footer-logo">ESCOUT</h1>
+            <p className="brand-text">
+              Global eSports scouting platform. We connect high-ELO talent with 
+              tier-1 organizations through data-driven analysis.
+            </p>
+            <div className="social-row">
+              <a href="#" className="social-icon discord"><FaDiscord /></a>
+              <a href="#" className="social-icon twitter"><FaTwitter /></a>
+              <a href="#" className="social-icon youtube"><FaYoutube /></a>
+              <a href="#" className="social-icon insta"><FaInstagram /></a>
+            </div>
+          </div>
+
+          {/* 2. NAVIGATION */}
+          <div className="footer-column">
+            <h3 className="col-header">PLATFORM</h3>
+            <ul className="footer-links">
+              <li><a href="#">Tournaments</a></li>
+              <li><a href="#">Leaderboards</a></li>
+              <li><a href="#">Team Finder</a></li>
+              <li><a href="#">Premium Access</a></li>
+            </ul>
+          </div>
+
+          {/* 3. SUPPORT */}
+          <div className="footer-column">
+            <h3 className="col-header">SUPPORT</h3>
+            <ul className="footer-links">
+              <li><a href="#">Help Center</a></li>
+              <li><a href="#">API Documentation</a></li>
+              <li><a href="#">Community Guidelines</a></li>
+              <li><a href="#">Contact Us</a></li>
+            </ul>
+          </div>
+
+          {/* 4. NEWSLETTER */}
+          <div className="footer-column newsletter-col">
+            <h3 className="col-header">INTEL UPDATE</h3>
+            <p className="newsletter-text">Get weekly reports on top players and upcoming scrims.</p>
+            <form className="newsletter-form">
+              <div className="input-wrapper">
+                <FaEnvelope className="input-icon" />
+                <input type="email" placeholder="ENTER EMAIL..." />
+                <button type="button" className="send-btn"><FaArrowRight /></button>
+              </div>
+            </form>
+          </div>
+
+        </div>
+
+        {/* BOTTOM BAR */}
+        <div className="footer-bottom">
+          <div className="copyright">
+            <p>&copy; 2025 ESCOUT SYSTEMS. ALL RIGHTS RESERVED.</p>
+          </div>
+          <div className="legal">
+            <a href="#">PRIVACY</a>
+            <span className="divider">/</span>
+            <a href="#">TERMS</a>
+            <span className="divider">/</span>
+            <a href="#">SITEMAP</a>
+          </div>
+        </div>
       </div>
     </footer>
   );

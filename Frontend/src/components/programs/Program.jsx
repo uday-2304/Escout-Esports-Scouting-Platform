@@ -1,75 +1,64 @@
-import React, { useRef } from "react";
+import React from "react";
 import "./Program.css";
-import Home1 from '../../assets/home1.jpg';
-import Img2 from '../../assets/img2.jpg';
-import Img3 from '../../assets/img3.jpg';
-import Img6 from '../../assets/img6.png';
-import Img7 from '../../assets/img7.jpg';
-import Img8 from '../../assets/img8.jpg';
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import ImgValorant from '../../assets/img6.png';
+import ImgPubg from '../../assets/img3.jpg';
+import ImgCod from '../../assets/img7.jpg';
+import ImgFortnite from '../../assets/img8.jpg';
+import ImgFreeFire from '../../assets/img2.jpg';
+import ImgLol from '../../assets/img2.jpg';
+import ImgCS2 from '../../assets/img3.jpg';
+import ImgDota from '../../assets/img4.jpg';
+import { Crosshair } from "lucide-react"; 
 
 export default function Program() {
-  const scrollRef = useRef(null);
-
-  const scroll = (direction) => {
-    const container = scrollRef.current;
-    const scrollAmount = 350; // Scroll roughly one card width
-    if (direction === "left") {
-      container.scrollBy({ left: -scrollAmount, behavior: "smooth" });
-    } else {
-      container.scrollBy({ left: scrollAmount, behavior: "smooth" });
-    }
-  };
-
-  const images = [
-    { src: Home1, name: "E-Sports", sub: "Competitive" },
-    { src: Img2, name: "Free-Fire", sub: "Survival" },
-    { src: Img3, name: "PUBG", sub: "Battle Royale" },
-    { src: Img6, name: "Valorant", sub: "Tactical FPS" },
-    { src: Img7, name: "COD", sub: "Warfare" },
-    { src: Img8, name: "Fortnite", sub: "Build & Battle" },
+  const games = [
+    { name: "VALORANT", genre: "TACTICAL FPS", img: ImgValorant },
+    { name: "LEAGUE OF LEGENDS", genre: "MOBA", img: ImgLol },
+    { name: "CS2", genre: "TACTICAL SHOOTER", img: ImgCS2 },
+    { name: "PUBG MOBILE", genre: "BATTLE ROYALE", img: ImgPubg },
+    { name: "DOTA 2", genre: "STRATEGY", img: ImgDota },
+    { name: "CALL OF DUTY", genre: "FPS", img: ImgCod },
+    { name: "FORTNITE", genre: "BUILD & BATTLE", img: ImgFortnite },
+    { name: "FREE FIRE", genre: "SURVIVAL", img: ImgFreeFire },
   ];
 
   return (
-    <div className="carousel-wrapper">
-      
-      {/* Title Section */}
-      <h2 className="carousel-title">Featured <span>Tournaments</span></h2>
-
-      {/* Navigation Layer */}
-      <div className="controls-container">
-        <button className="arrow left" onClick={() => scroll("left")}>
-          <ChevronLeft size={24} />
-        </button>
-        <button className="arrow right" onClick={() => scroll("right")}>
-          <ChevronRight size={24} />
-        </button>
+    <section className="program-section">
+      <div className="program-header">
+        <h2 className="program-title">ACTIVE <span className="text-red">WARZONES</span></h2>
+        <p className="program-subtitle">SELECT YOUR DISCIPLINE</p>
       </div>
 
-      {/* Cards Container */}
-      <div className="carousel-container" ref={scrollRef}>
-        {images.map((item, index) => (
-          <div className="carousel-item" key={index}>
-            <img src={item.src} alt={item.name} />
-            
-            <div className="image-overlay">
-              <span className="image-title">{item.name}</span>
-              <span className="image-subtitle">{item.sub} /// ENTER</span>
+      <div className="games-grid">
+        {games.map((game, index) => (
+          <div className="game-card" key={index}>
+            <div className="card-media">
+              <img src={game.img} alt={game.name} />
+              <div className="overlay-gradient"></div>
             </div>
             
-            {/* Tech Border Effect (Optional visual flair) */}
-            <div style={{
-              position: 'absolute',
-              top: '10px',
-              right: '10px',
-              width: '20px',
-              height: '2px',
-              background: '#00f3ff'
-            }}></div>
+            <div className="card-details">
+              <div className="text-area">
+                <span className="game-genre">{game.genre}</span>
+                <h3 className="game-name">{game.name}</h3>
+              </div>
+              
+              <button className="card-action-btn">
+                <span>FIND TOURNAMENTS</span>
+                <Crosshair size={20} className="scope-icon" />
+              </button>
+            </div>
+
+            {/* --- THE 4 CORNER BULLETS --- */}
+            {/* These will pop out like projectiles on hover */}
+            <div className="bullet b-tl"></div>
+            <div className="bullet b-tr"></div>
+            <div className="bullet b-bl"></div>
+            <div className="bullet b-br"></div>
+
           </div>
         ))}
       </div>
-
-    </div>
+    </section>
   );
-} 
+}

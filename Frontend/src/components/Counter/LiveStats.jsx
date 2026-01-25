@@ -9,6 +9,22 @@ const LiveStats = () => {
     { label: "Teams Recruiting", value: 25, suffix: "+" },
   ];
 
+  // Helper to create floating particles
+  const renderParticles = () => {
+    return [...Array(8)].map((_, i) => (
+      <span
+        key={i}
+        className="particle"
+        style={{
+          // Randomize position and animation speed inline for organic feel
+          left: `${Math.random() * 100}%`,
+          animationDelay: `${Math.random() * 5}s`,
+          animationDuration: `${3 + Math.random() * 4}s`,
+        }}
+      ></span>
+    ));
+  };
+
   return (
     <section className="live-stats">
       <div className="live-stats-content">
@@ -19,8 +35,9 @@ const LiveStats = () => {
         <div className="live-stats-grid">
           {stats.map((item, index) => (
             <div key={index} className="live-stats-card">
-              {/* Optional: Add icon here if desired */}
-              
+              {/* --- BACKGROUND PARTICLES --- */}
+              <div className="particles-container">{renderParticles()}</div>
+
               <h3 className="live-stats-number">
                 <CountUp
                   start={0}
@@ -28,7 +45,7 @@ const LiveStats = () => {
                   duration={3.5}
                   separator=","
                   suffix={item.suffix}
-                  enableScrollSpy={true} // Animates when scrolled into view
+                  enableScrollSpy={true}
                   scrollSpyOnce={true}
                 />
               </h3>

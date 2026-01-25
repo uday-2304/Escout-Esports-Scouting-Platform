@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { 
   FaHeart, FaCommentAlt, FaPlay, FaGamepad, 
-  FaSearch, FaBell, FaChevronDown, FaPlus 
+  FaSearch, FaBell, FaChevronDown, FaPlus, FaUserAstronaut 
 } from "react-icons/fa";
 import { NavLink } from "react-router-dom";
+import { IoMdClose } from "react-icons/io";
 
 const Dashboard = () => {
   const [videos, setVideos] = useState([]);
@@ -34,7 +35,7 @@ const Dashboard = () => {
 
   /* ================= LIKE VIDEO ================= */
   const likeVideo = async (id, e) => {
-    e.stopPropagation(); // Prevent card click
+    e.stopPropagation(); 
     try {
       await fetch(`http://localhost:8000/api/dashboard/videos/${id}/like`, {
         method: "PUT",
@@ -61,125 +62,470 @@ const Dashboard = () => {
   const filteredVideos = selectedGame === "All" ? videos : videos.filter((v) => v.game === selectedGame);
 
   return (
-    <div style={styles.dashboardContainer}>
-      <style>
-        {`
-          @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@500;700&display=swap');
-          
-          ::-webkit-scrollbar { width: 6px; }
-          ::-webkit-scrollbar-track { background: transparent; }
-          ::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
-          ::-webkit-scrollbar-thumb:hover { background: #555; }
+    <div className="dashboard-layout">
+      {/* ===== CSS STYLES ===== */}
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Teko:wght@400;500;700&display=swap');
 
-          .hover-scale { transition: transform 0.3s ease, box-shadow 0.3s ease; }
-          .hover-scale:hover { transform: translateY(-4px); box-shadow: 0 20px 40px rgba(0,0,0,0.4); }
-          .hover-scale:hover .play-btn { opacity: 1; transform: scale(1); }
-          .hover-text-bright:hover { color: #fff !important; }
-        `}
-      </style>
+        :root {
+          --bg-black: #080808;
+          --bg-dark: #111;
+          --red-primary: #ff001f;
+          --text-white: #f0f0f0;
+          --text-dim: #666;
+          --border-dark: #222;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body { background: var(--bg-black); }
+
+        .dashboard-layout {
+          display: flex;
+          min-height: 100vh;
+          background-color: var(--bg-black);
+          color: var(--text-white);
+          font-family: 'Rajdhani', sans-serif;
+        }
+
+        /* ===== SIDEBAR ===== */
+        .sidebar {
+          width: 260px;
+          padding: 40px 0;
+          border-right: 1px solid var(--border-dark);
+          display: flex;
+          flex-direction: column;
+          position: fixed;
+          height: 100vh;
+          background: rgba(8, 8, 8, 0.95);
+          backdrop-filter: blur(10px);
+          z-index: 50;
+        }
+
+        .brand {
+          padding: 0 30px 40px 30px;
+          border-bottom: 1px solid var(--border-dark);
+          margin-bottom: 20px;
+        }
+
+        .brand-text {
+          font-family: 'Teko', sans-serif;
+          font-size: 32px;
+          font-weight: 700;
+          color: #fff;
+          letter-spacing: 1px;
+          line-height: 1;
+        }
+        .brand-text span { color: var(--red-primary); }
+
+        .nav-header {
+          padding: 0 30px;
+          font-size: 12px;
+          font-weight: 700;
+          color: var(--text-dim);
+          margin-bottom: 15px;
+          letter-spacing: 2px;
+        }
+
+        .filter-btn {
+          width: 100%;
+          padding: 12px 30px;
+          background: transparent;
+          border: none;
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          color: #888;
+          font-family: 'Rajdhani', sans-serif;
+          font-size: 15px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.2s;
+          border-left: 2px solid transparent;
+        }
+
+        .filter-btn:hover {
+          color: #fff;
+          background: rgba(255, 255, 255, 0.03);
+        }
+
+        .filter-btn.active {
+          color: var(--red-primary);
+          background: linear-gradient(90deg, rgba(255, 0, 31, 0.1), transparent);
+          border-left: 2px solid var(--red-primary);
+        }
+
+        .sidebar-footer {
+          margin-top: auto;
+          padding: 30px;
+        }
+
+        .rank-widget {
+          padding: 15px;
+          background: #111;
+          border: 1px solid var(--border-dark);
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          font-size: 14px;
+        }
+        .rank-val { color: var(--red-primary); font-weight: 700; }
+
+        /* ===== MAIN CONTENT ===== */
+        .main-content {
+          flex: 1;
+          margin-left: 260px;
+          padding: 40px 50px;
+        }
+
+        /* HEADER */
+        .header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 40px;
+          padding-bottom: 20px;
+          border-bottom: 1px solid var(--border-dark);
+        }
+
+        .search-wrapper {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          background: transparent;
+          border-bottom: 1px solid #333;
+          padding: 8px 0;
+          width: 300px;
+          transition: border-color 0.3s;
+        }
+        .search-wrapper:focus-within { border-bottom-color: var(--red-primary); }
+
+        .search-input {
+          background: transparent;
+          border: none;
+          color: #fff;
+          width: 100%;
+          outline: none;
+          font-family: 'Rajdhani', sans-serif;
+          font-size: 16px;
+        }
+
+        .header-actions {
+          display: flex;
+          align-items: center;
+          gap: 25px;
+        }
+
+        .upload-btn {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          background: transparent;
+          border: 1px solid var(--red-primary);
+          color: var(--red-primary);
+          text-decoration: none;
+          padding: 8px 20px;
+          font-size: 14px;
+          font-weight: 700;
+          letter-spacing: 1px;
+          transition: all 0.3s;
+        }
+        .upload-btn:hover {
+          background: var(--red-primary);
+          color: #fff;
+          box-shadow: 0 0 15px rgba(255, 0, 31, 0.4);
+        }
+
+        .icon-btn { color: #666; cursor: pointer; transition: color 0.3s; }
+        .icon-btn:hover { color: #fff; }
+
+        .profile-badge {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          cursor: pointer;
+        }
+        .avatar {
+          width: 35px;
+          height: 35px;
+          background: #111;
+          border: 1px solid #333;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: #fff;
+        }
+
+        /* HERO */
+        .hero { margin-bottom: 40px; }
+        .hero-title {
+          font-family: 'Teko', sans-serif;
+          font-size: 50px;
+          font-weight: 500;
+          color: #fff;
+          line-height: 0.9;
+          margin-bottom: 5px;
+          text-transform: uppercase;
+        }
+        .hero-title span { color: var(--red-primary); }
+        .hero-sub { color: var(--text-dim); letter-spacing: 1px; text-transform: uppercase; font-size: 14px;}
+
+        /* GRID */
+        .section-header {
+          display: flex;
+          align-items: baseline;
+          gap: 15px;
+          margin-bottom: 25px;
+        }
+        .section-title {
+          font-family: 'Teko', sans-serif;
+          font-size: 24px;
+          font-weight: 500;
+          text-transform: uppercase;
+          color: #fff;
+        }
+        .count { color: var(--text-dim); font-size: 14px; }
+
+        .grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+          gap: 30px;
+        }
+
+        /* VIDEO CARD */
+        .card {
+          background: transparent;
+          cursor: pointer;
+          transition: transform 0.3s ease;
+        }
+        .card:hover { transform: translateY(-5px); }
+
+        .thumb-wrapper {
+          position: relative;
+          aspect-ratio: 16/9;
+          overflow: hidden;
+          background: #111;
+          margin-bottom: 12px;
+          border: 1px solid #222;
+          transition: border-color 0.3s;
+        }
+        .card:hover .thumb-wrapper { border-color: var(--red-primary); }
+
+        .thumb {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          transition: transform 0.4s ease;
+        }
+        .card:hover .thumb { transform: scale(1.05); }
+
+        .play-overlay {
+          position: absolute;
+          inset: 0;
+          background: rgba(0,0,0,0.4);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          opacity: 0;
+          transition: opacity 0.3s;
+        }
+        .card:hover .play-overlay { opacity: 1; }
+
+        .play-btn {
+          width: 50px;
+          height: 50px;
+          border: 1px solid var(--red-primary);
+          background: rgba(255, 0, 31, 0.1);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: #fff;
+          transform: rotate(45deg);
+        }
+        .play-btn svg { transform: rotate(-45deg); }
+
+        .game-tag {
+          position: absolute;
+          top: 8px;
+          left: 8px;
+          background: var(--red-primary);
+          color: #fff;
+          font-size: 11px;
+          font-weight: 700;
+          padding: 2px 6px;
+          text-transform: uppercase;
+        }
+
+        .card-meta { padding: 0 5px; }
+        .video-title {
+          font-size: 16px;
+          font-weight: 700;
+          color: #fff;
+          margin-bottom: 8px;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+
+        .meta-footer {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          font-size: 13px;
+          color: var(--text-dim);
+        }
+
+        .actions { display: flex; gap: 15px; }
+        .action-btn {
+          display: flex;
+          align-items: center;
+          gap: 5px;
+          background: transparent;
+          border: none;
+          cursor: pointer;
+          color: #666;
+          transition: color 0.2s;
+        }
+        .action-btn:hover { color: #fff; }
+
+        .loading-text {
+          color: var(--red-primary);
+          font-family: 'Teko', sans-serif;
+          font-size: 24px;
+          letter-spacing: 2px;
+        }
+
+        /* MODAL */
+        .modal-overlay {
+          position: fixed;
+          inset: 0;
+          background: rgba(0,0,0,0.95);
+          backdrop-filter: blur(5px);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 100;
+        }
+        .modal-content {
+          width: 80%;
+          max-width: 1000px;
+          aspect-ratio: 16/9;
+          background: #000;
+          border: 1px solid var(--red-primary);
+          box-shadow: 0 0 50px rgba(255, 0, 31, 0.15);
+        }
+        .video-player { width: 100%; height: 100%; outline: none; }
+
+        /* SCROLLBAR */
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: #000; }
+        ::-webkit-scrollbar-thumb { background: #333; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--red-primary); }
+
+        @media (max-width: 900px) {
+          .sidebar { display: none; }
+          .main-content { margin-left: 0; padding: 20px; }
+          .hero-title { font-size: 36px; }
+        }
+      `}</style>
 
       {/* ===== SIDEBAR ===== */}
-      <aside style={styles.sidebar}>
-        <div style={styles.brand}>
-          <div style={styles.brandIcon}></div>
-          <span style={styles.brandText}>ARCADER</span>
+      <aside className="sidebar">
+        <div className="brand">
+          <div className="brand-text">ARCADER <span>DASH</span></div>
         </div>
 
-        <nav style={styles.navContainer}>
-          <p style={styles.navHeader}>DISCOVER</p>
-          <div style={styles.filterGroup}>
+        <nav>
+          <p className="nav-header">DATABASE FILTER</p>
+          <div className="filter-group">
             {games.map((g) => (
               <button
                 key={g}
-                style={selectedGame === g ? styles.navItemActive : styles.navItem}
+                className={`filter-btn ${selectedGame === g ? "active" : ""}`}
                 onClick={() => setSelectedGame(g)}
               >
-                <FaGamepad size={14} style={{ opacity: selectedGame === g ? 1 : 0.5 }} />
-                <span>{g}</span>
+                <FaGamepad size={14} />
+                <span>{g.toUpperCase()}</span>
               </button>
             ))}
           </div>
         </nav>
 
-        <div style={styles.sidebarFooter}>
-          <div style={styles.rankWidget}>
-            <span style={styles.rankLabel}>Rank</span>
-            <span style={styles.rankValue}>Diamond II</span>
+        <div className="sidebar-footer">
+          <div className="rank-widget">
+            <span style={{color:'#666'}}>RANKING</span>
+            <span className="rank-val">DIAMOND II</span>
           </div>
         </div>
       </aside>
 
       {/* ===== MAIN CONTENT ===== */}
-      <main style={styles.mainContent}>
+      <main className="main-content">
         
-        {/* TOP HEADER */}
-        <header style={styles.header}>
-          <div style={styles.searchWrapper}>
-            <FaSearch color="#555" size={14} />
-            <input type="text" placeholder="Search clips..." style={styles.searchInput} />
+        {/* HEADER */}
+        <header className="header">
+          <div className="search-wrapper">
+            <FaSearch color="#444" size={14} />
+            <input type="text" placeholder="SEARCH CLIPS..." className="search-input" />
           </div>
 
-          <div style={styles.headerActions}>
-            <NavLink to="/add-video" style={styles.uploadBtn}>
-              <FaPlus size={12} /> Upload
+          <div className="header-actions">
+            <NavLink to="/add-video" className="upload-btn">
+              <FaPlus size={12} /> UPLOAD CLIP
             </NavLink>
-            <div style={styles.iconBtn}><FaBell size={16} /></div>
-            <div style={styles.profileBadge}>
-              <div style={styles.avatar}>P</div>
+            <div className="icon-btn"><FaBell size={18} /></div>
+            <div className="profile-badge">
+              <div className="avatar"><FaUserAstronaut size={16}/></div>
               <FaChevronDown size={10} color="#666" />
             </div>
           </div>
         </header>
 
-        {/* HERO BANNER */}
-        <section style={styles.hero}>
-          <div style={styles.heroContent}>
-            <h1 style={styles.heroTitle}>Gaming Highlights</h1>
-            <p style={styles.heroSub}>Discover the best plays from the community.</p>
-          </div>
-          <div style={styles.heroDecor}></div>
+        {/* HERO */}
+        <section className="hero">
+          <h1 className="hero-title">GAMING <span>HIGHLIGHTS</span></h1>
+          <p className="hero-sub">Your personal command center for top plays.</p>
         </section>
 
         {/* CONTENT GRID */}
-        <section style={styles.gridSection}>
-          <div style={styles.sectionTitleRow}>
-            <h2 style={styles.sectionTitle}>Trending Now</h2>
-            <span style={styles.resultCount}>{filteredVideos.length} clips found</span>
+        <section>
+          <div className="section-header">
+            <h2 className="section-title">TRENDING NOW</h2>
+            <span className="count">[{filteredVideos.length}] RECORDS FOUND</span>
           </div>
 
           {loading ? (
-            <p style={styles.loading}>Loading stream...</p>
+            <p className="loading-text">LOADING SYSTEM...</p>
           ) : (
-            <div style={styles.grid}>
+            <div className="grid">
               {filteredVideos.map((video) => {
                 const isLiked = video.likes.includes(currentUserId);
                 return (
-                  <div key={video._id} style={styles.card} className="hover-scale">
+                  <div key={video._id} className="card">
                     {/* Thumbnail */}
-                    <div style={styles.thumbWrapper} onClick={() => setActiveVideo(video.videoUrl)}>
-                      <img src={video.thumbnail} alt={video.title} style={styles.thumb} />
-                      <div style={styles.overlay}>
-                        <div style={styles.playBtn} className="play-btn">
-                          <FaPlay size={14} style={{ marginLeft: 2 }} />
+                    <div className="thumb-wrapper" onClick={() => setActiveVideo(video.videoUrl)}>
+                      <img src={video.thumbnail} alt={video.title} className="thumb" />
+                      <span className="game-tag">{video.game}</span>
+                      <div className="play-overlay">
+                        <div className="play-btn">
+                          <FaPlay size={16} />
                         </div>
-                        <span style={styles.gameTag}>{video.game}</span>
-                        <span style={styles.duration}>0:30</span>
                       </div>
                     </div>
 
                     {/* Meta */}
-                    <div style={styles.cardMeta}>
-                      <h3 style={styles.videoTitle}>{video.title}</h3>
-                      <div style={styles.metaFooter}>
-                        <span style={styles.views}>{video.views || 0} views</span>
+                    <div className="card-meta">
+                      <h3 className="video-title">{video.title}</h3>
+                      <div className="meta-footer">
+                        <span>{video.views || 0} VIEWS</span>
                         
-                        <div style={styles.actions}>
-                          <button style={styles.actionBtn} onClick={(e) => likeVideo(video._id, e)}>
-                            <FaHeart color={isLiked ? "#F43F5E" : "#666"} size={14} />
-                            <span style={{ color: isLiked ? "#F43F5E" : "#666" }}>{video.likes.length}</span>
+                        <div className="actions">
+                          <button className="action-btn" onClick={(e) => likeVideo(video._id, e)}>
+                            <FaHeart color={isLiked ? "#ff001f" : "#444"} size={14} />
+                            <span style={{ color: isLiked ? "#ff001f" : "#666" }}>{video.likes.length}</span>
                           </button>
-                          <div style={styles.actionBtn}>
-                            <FaCommentAlt color="#666" size={12} />
+                          <div className="action-btn">
+                            <FaCommentAlt color="#444" size={12} />
                             <span>{video.commentsCount || 0}</span>
                           </div>
                         </div>
@@ -193,372 +539,16 @@ const Dashboard = () => {
         </section>
       </main>
 
-      {/* VIDEO MODAL */}
+      {/* ===== VIDEO MODAL ===== */}
       {activeVideo && (
-        <div style={styles.modalOverlay} onClick={() => setActiveVideo(null)}>
-          <div style={styles.modalContent} onClick={(e) => e.stopPropagation()}>
-            <video src={activeVideo} controls autoPlay style={styles.videoPlayer} />
+        <div className="modal-overlay" onClick={() => setActiveVideo(null)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <video src={activeVideo} controls autoPlay className="video-player" />
           </div>
         </div>
       )}
     </div>
   );
-};
-
-/* ===== MINIMALIST STYLES ===== */
-const styles = {
-  dashboardContainer: {
-    display: "flex",
-    minHeight: "100vh",
-    backgroundColor: "#09090b", // Very dark matte grey (not pure black)
-    color: "#e4e4e7",
-    fontFamily: "'Inter', sans-serif",
-  },
-
-  /* Sidebar */
-  sidebar: {
-    width: "240px",
-    padding: "32px 24px",
-    borderRight: "1px solid #27272a",
-    display: "flex",
-    flexDirection: "column",
-    position: "fixed",
-    height: "100vh",
-    backgroundColor: "#09090b",
-    zIndex: 20,
-  },
-  brand: {
-    display: "flex",
-    alignItems: "center",
-    gap: "12px",
-    marginBottom: "48px",
-  },
-  brandIcon: {
-    width: "24px",
-    height: "24px",
-    background: "linear-gradient(135deg, #3B82F6, #8B5CF6)", // Minimal gradient dot
-    borderRadius: "6px",
-  },
-  brandText: {
-    fontFamily: "'Space Grotesk', sans-serif",
-    fontSize: "18px",
-    fontWeight: "700",
-    letterSpacing: "-0.5px",
-    color: "#fff",
-  },
-  navHeader: {
-    fontSize: "11px",
-    fontWeight: "600",
-    color: "#52525b",
-    marginBottom: "16px",
-    letterSpacing: "1px",
-  },
-  filterGroup: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "4px",
-  },
-  navItem: {
-    display: "flex",
-    alignItems: "center",
-    gap: "12px",
-    padding: "10px 12px",
-    background: "transparent",
-    border: "none",
-    borderRadius: "8px",
-    color: "#a1a1aa",
-    fontSize: "14px",
-    fontWeight: "500",
-    cursor: "pointer",
-    transition: "all 0.2s",
-    textAlign: "left",
-  },
-  navItemActive: {
-    display: "flex",
-    alignItems: "center",
-    gap: "12px",
-    padding: "10px 12px",
-    background: "#18181b",
-    border: "none",
-    borderRadius: "8px",
-    color: "#fff",
-    fontSize: "14px",
-    fontWeight: "600",
-    cursor: "pointer",
-    textAlign: "left",
-  },
-  sidebarFooter: {
-    marginTop: "auto",
-  },
-  rankWidget: {
-    padding: "16px",
-    background: "#121215",
-    borderRadius: "12px",
-    border: "1px solid #27272a",
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  rankLabel: { fontSize: "12px", color: "#71717a" },
-  rankValue: { fontSize: "13px", color: "#fff", fontWeight: "600" },
-
-  /* Main Content */
-  mainContent: {
-    flex: 1,
-    marginLeft: "240px",
-    padding: "32px 48px",
-  },
-
-  /* Header */
-  header: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: "48px",
-  },
-  searchWrapper: {
-    display: "flex",
-    alignItems: "center",
-    gap: "12px",
-    background: "#121215",
-    border: "1px solid #27272a",
-    padding: "10px 16px",
-    borderRadius: "100px",
-    width: "320px",
-    transition: "border-color 0.2s",
-  },
-  searchInput: {
-    background: "transparent",
-    border: "none",
-    color: "#fff",
-    width: "100%",
-    outline: "none",
-    fontSize: "13px",
-  },
-  headerActions: {
-    display: "flex",
-    alignItems: "center",
-    gap: "24px",
-  },
-  uploadBtn: {
-    display: "flex",
-    alignItems: "center",
-    gap: "8px",
-    background: "#fff",
-    color: "#000",
-    textDecoration: "none",
-    padding: "8px 16px",
-    borderRadius: "100px",
-    fontSize: "13px",
-    fontWeight: "600",
-    transition: "opacity 0.2s",
-  },
-  iconBtn: {
-    color: "#a1a1aa",
-    cursor: "pointer",
-    transition: "color 0.2s",
-  },
-  profileBadge: {
-    display: "flex",
-    alignItems: "center",
-    gap: "8px",
-    cursor: "pointer",
-  },
-  avatar: {
-    width: "32px",
-    height: "32px",
-    background: "linear-gradient(to right, #8B5CF6, #EC4899)",
-    borderRadius: "50%",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    fontSize: "12px",
-    fontWeight: "700",
-    color: "#fff",
-  },
-
-  /* Hero */
-  hero: {
-    marginBottom: "40px",
-    paddingBottom: "40px",
-    borderBottom: "1px solid #27272a",
-    position: "relative",
-  },
-  heroTitle: {
-    fontFamily: "'Space Grotesk', sans-serif",
-    fontSize: "32px",
-    fontWeight: "700",
-    color: "#fff",
-    marginBottom: "8px",
-    letterSpacing: "-1px",
-  },
-  heroSub: {
-    fontSize: "14px",
-    color: "#71717a",
-  },
-  heroDecor: {
-    position: "absolute",
-    top: "-100px",
-    right: "-100px",
-    width: "400px",
-    height: "400px",
-    background: "radial-gradient(circle, rgba(59,130,246,0.08) 0%, rgba(0,0,0,0) 70%)",
-    filter: "blur(40px)",
-    zIndex: -1,
-  },
-
-  /* Grid Section */
-  sectionTitleRow: {
-    display: "flex",
-    alignItems: "baseline",
-    gap: "12px",
-    marginBottom: "24px",
-  },
-  sectionTitle: {
-    fontSize: "18px",
-    fontWeight: "600",
-    color: "#fff",
-  },
-  resultCount: {
-    fontSize: "12px",
-    color: "#52525b",
-  },
-  grid: {
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))",
-    gap: "24px",
-  },
-  
-  /* Card */
-  card: {
-    backgroundColor: "transparent", // Clean look, no card background until hover if desired
-    borderRadius: "12px",
-    cursor: "pointer",
-  },
-  thumbWrapper: {
-    position: "relative",
-    aspectRatio: "16/9",
-    borderRadius: "12px",
-    overflow: "hidden",
-    marginBottom: "12px",
-    backgroundColor: "#18181b", // Skeleton color
-  },
-  thumb: {
-    width: "100%",
-    height: "100%",
-    objectFit: "cover",
-  },
-  overlay: {
-    position: "absolute",
-    inset: 0,
-    background: "rgba(0,0,0,0.2)",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    transition: "background 0.3s",
-  },
-  playBtn: {
-    width: "40px",
-    height: "40px",
-    background: "rgba(255,255,255,0.2)",
-    backdropFilter: "blur(4px)",
-    borderRadius: "50%",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    color: "#fff",
-    opacity: 0,
-    transform: "scale(0.8)",
-    transition: "all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)",
-  },
-  gameTag: {
-    position: "absolute",
-    top: "10px",
-    left: "10px",
-    background: "rgba(0,0,0,0.6)",
-    backdropFilter: "blur(8px)",
-    color: "#fff",
-    fontSize: "10px",
-    fontWeight: "600",
-    padding: "4px 8px",
-    borderRadius: "4px",
-  },
-  duration: {
-    position: "absolute",
-    bottom: "10px",
-    right: "10px",
-    background: "rgba(0,0,0,0.8)",
-    color: "#fff",
-    fontSize: "10px",
-    padding: "2px 6px",
-    borderRadius: "4px",
-  },
-  cardMeta: {
-    padding: "0 4px",
-  },
-  videoTitle: {
-    fontSize: "14px",
-    fontWeight: "500",
-    color: "#e4e4e7",
-    marginBottom: "8px",
-    lineHeight: "1.4",
-    whiteSpace: "nowrap",
-    overflow: "hidden",
-    textOverflow: "ellipsis",
-  },
-  metaFooter: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  views: {
-    fontSize: "12px",
-    color: "#71717a",
-  },
-  actions: {
-    display: "flex",
-    gap: "12px",
-  },
-  actionBtn: {
-    display: "flex",
-    alignItems: "center",
-    gap: "4px",
-    background: "transparent",
-    border: "none",
-    cursor: "pointer",
-    fontSize: "12px",
-    color: "#71717a",
-    padding: 0,
-  },
-  loading: {
-    color: "#52525b",
-    fontSize: "14px",
-  },
-
-  /* Modal */
-  modalOverlay: {
-    position: "fixed",
-    inset: 0,
-    background: "rgba(0,0,0,0.85)",
-    backdropFilter: "blur(12px)",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    zIndex: 100,
-  },
-  modalContent: {
-    width: "80%",
-    maxWidth: "1000px",
-    aspectRatio: "16/9",
-    background: "#000",
-    borderRadius: "16px",
-    overflow: "hidden",
-    boxShadow: "0 0 40px rgba(0,0,0,0.5)",
-  },
-  videoPlayer: {
-    width: "100%",
-    height: "100%",
-  },
 };
 
 export default Dashboard;

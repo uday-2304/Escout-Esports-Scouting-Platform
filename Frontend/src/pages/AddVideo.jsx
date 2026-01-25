@@ -142,7 +142,7 @@ const styles = {
   backBtn: {
     background: "none",
     border: "none",
-    color: "#ff6b08",
+    color: "#f10000",
     cursor: "pointer",
     marginBottom: 20,
   },
@@ -164,7 +164,7 @@ const styles = {
     color: "#fff",
   },
   uploadBox: {
-    border: "2px dashed #ff6b08",
+    border: "2px dashed #f10000",
     height: 300,
     display: "flex",
     alignItems: "center",
@@ -178,7 +178,7 @@ const styles = {
   },
   uploadBtn: {
     padding: 14,
-    background: "#ff6b08",
+    background: "#f10000",
     border: "none",
     color: "#fff",
     fontSize: 18,

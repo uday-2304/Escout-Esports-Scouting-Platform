@@ -1,20 +1,30 @@
 import React from 'react';
 import './Hero.css';
-// ⚠️ Update this path to your image
-import heroBgImage from '../../assets/homepage.jpg'; 
+// ⚠️ Ensure this path points to your video file
+import heroBgVideo from '../../assets/pubg.mp4'; 
 
-const Hero = () => {
+const Hero = () => {  
   return (
     <div className='hero-container'>
       
-      {/* 1. Left: Image Section */}
+      {/* 1. Left: Media Section */}
       <div className="hero-image-wrapper">
-        <img 
-          src={heroBgImage} 
-          alt="Samurai Character" 
-          className="hero-img" 
-        />
-        {/* Seamless Blend Overlay */}
+        
+        {/* Container to constrain video & red overlay size */}
+        <div className="hero-media-box">
+          <video 
+            src={heroBgVideo} 
+            autoPlay 
+            loop 
+            muted 
+            playsInline 
+            className="hero-video" 
+          />
+          {/* The Red Tint Layer */}
+          <div className="red-coating"></div>
+        </div>
+
+        {/* Existing Side Fade for seamless blending */}
         <div className="hero-image-overlay"></div>
       </div>
 
