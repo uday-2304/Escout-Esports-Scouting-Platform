@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate } from "react-router-dom"; 
 import "./Program.css";
 import ImgValorant from '../../assets/img6.png';
 import ImgPubg from '../../assets/img3.jpg';
@@ -11,6 +12,8 @@ import ImgDota from '../../assets/img4.jpg';
 import { Crosshair } from "lucide-react"; 
 
 export default function Program() {
+  const navigate = useNavigate();
+
   const games = [
     { name: "VALORANT", genre: "TACTICAL FPS", img: ImgValorant },
     { name: "LEAGUE OF LEGENDS", genre: "MOBA", img: ImgLol },
@@ -21,6 +24,10 @@ export default function Program() {
     { name: "FORTNITE", genre: "BUILD & BATTLE", img: ImgFortnite },
     { name: "FREE FIRE", genre: "SURVIVAL", img: ImgFreeFire },
   ];
+
+  const handleFindTournaments = () => {
+    navigate('/tournaments');
+  };
 
   return (
     <section className="program-section">
@@ -43,14 +50,10 @@ export default function Program() {
                 <h3 className="game-name">{game.name}</h3>
               </div>
               
-              <button className="card-action-btn">
-                <span>FIND TOURNAMENTS</span>
-                <Crosshair size={20} className="scope-icon" />
-              </button>
+              {/* REMOVED INDIVIDUAL BUTTON FROM HERE */}
             </div>
 
-            {/* --- THE 4 CORNER BULLETS --- */}
-            {/* These will pop out like projectiles on hover */}
+            {/* --- Corner Bullets --- */}
             <div className="bullet b-tl"></div>
             <div className="bullet b-tr"></div>
             <div className="bullet b-bl"></div>
@@ -59,6 +62,18 @@ export default function Program() {
           </div>
         ))}
       </div>
+
+      {/* --- NEW BIG BUTTON BELOW GRID --- */}
+      <div className="button-container">
+        <button 
+          className="big-action-btn"
+          onClick={handleFindTournaments}
+        >
+          <span>FIND TOURNAMENTS</span>
+          <Crosshair size={24} className="scope-icon" />
+        </button>
+      </div>
+
     </section>
   );
 }

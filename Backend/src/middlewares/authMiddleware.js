@@ -14,17 +14,11 @@ export const verifyToken = asyncHandler((req, res, next) => {
   try {
     const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
 
-    // 🔴 FORCE _id to exist
-    if (!decoded._id) {
-      throw new ApiError(401, "Invalid token payload");
-    }
-
-    req.user = {
-      _id: decoded._id.toString(),
-    };
+    req.user = { _id: decoded.id || decoded._id };
 
     next();
   } catch (error) {
+    console.error("JWT VERIFY ERROR:", error.message);
     throw new ApiError(401, "Invalid or expired token");
   }
 });

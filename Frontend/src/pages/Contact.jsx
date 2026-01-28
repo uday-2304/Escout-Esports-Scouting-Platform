@@ -1,172 +1,428 @@
 import React from "react";
+import { FaMapMarkerAlt, FaPhoneAlt, FaEnvelope, FaDiscord, FaTwitter, FaLinkedin } from "react-icons/fa";
 
 const ContactPage = () => {
+  const developers = [
+    {
+      name: "Uday Tejan",
+      role: "Lead Frontend Engineer",
+      img: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=1000&auto=format&fit=crop",
+    },
+    {
+      name: "Aarav Patel",
+      role: "Backend Architect",
+      img: "https://images.unsplash.com/photo-1599566150163-29194dcaad36?q=80&w=1000&auto=format&fit=crop",
+    },
+    {
+      name: "Riya Sharma",
+      role: "UI/UX Designer",
+      img: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=1000&auto=format&fit=crop",
+    },
+  ];
+
   return (
-    <div style={styles.page}>
-      {/* ===== CONTACT FORM ===== */}
-      <section style={styles.contactSection}>
-        <h1 style={styles.heading}>Contact Us</h1>
+    <div className="contact-wrapper">
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Teko:wght@400;500;600;700&family=Rajdhani:wght@500;600;700&display=swap');
 
-        <form style={styles.contactForm}>
-          <div style={styles.row}>
-            <input type="text" placeholder="Full Name" style={styles.input} />
-            <input type="email" placeholder="Email Address" style={styles.input} />
-          </div>
+        :root {
+          --red-primary: #c90e1e;
+          --bg-black: #050505;
+          --bg-dark: #0f0f0f;
+          --text-white: #ffffff;
+          --glass-bg: rgba(255, 255, 255, 0.03);
+          --border-color: #222;
+        }
 
-          <div style={styles.row}>
-            <input type="text" placeholder="Phone Number" style={styles.input} />
-            <input type="text" placeholder="Subject" style={styles.input} />
-          </div>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
 
-          <textarea
-            placeholder="Write your message here..."
-            style={styles.textarea}
-          ></textarea>
+        .contact-wrapper {
+          background-color: var(--bg-black);
+          font-family: 'Rajdhani', sans-serif;
+          min-height: 100vh;
+          color: var(--text-white);
+          padding-top: 80px; /* Space for navbar */
+        }
 
-          <button type="submit" style={styles.submitBtn}>
-            Send Message
-          </button>
-        </form>
-      </section>
+        .container {
+          max-width: 1300px;
+          margin: 0 auto;
+          padding: 0 40px;
+        }
 
-      {/* ===== DEVELOPERS SECTION ===== */}
-      <section style={styles.teamSection}>
-        <h2 style={styles.subHeading}>Developed By</h2>
-        <div style={styles.teamGrid}>
-          {[
-            {
-              name: "Uday Tejan",
-              role: "Frontend Developer",
-              img: "https://cdn.pixabay.com/photo/2017/01/31/13/14/avatar-2026510_1280.png",
-            },
-            {
-              name: "Aarav Patel",
-              role: "Backend Developer",
-              img: "https://cdn.pixabay.com/photo/2017/01/31/13/14/avatar-2026520_1280.png",
-            },
-            {
-              name: "Riya Sharma",
-              role: "UI/UX Designer",
-              img: "https://cdn.pixabay.com/photo/2017/01/31/13/14/avatar-2026511_1280.png",
-            },
-          ].map((dev, index) => (
-            <div key={index} style={styles.teamCard}>
-              <img src={dev.img} alt={dev.name} style={styles.teamImg} />
-              <h4>{dev.name}</h4>
-              <p>{dev.role}</p>
-            </div>
-          ))}
+        /* === HEADER === */
+        .section-header {
+          text-align: center;
+          margin-bottom: 80px;
+        }
+
+        .section-header h1 {
+          font-family: 'Teko', sans-serif;
+          font-size: clamp(50px, 6vw, 80px);
+          line-height: 0.9;
+          text-transform: uppercase;
+          margin-bottom: 15px;
+        }
+
+        .highlight-red {
+          color: var(--red-primary);
+        }
+
+        .section-header p {
+          color: #888;
+          font-size: 1.2rem;
+          max-width: 600px;
+          margin: 0 auto;
+        }
+
+        /* === CONTACT GRID === */
+        .contact-grid {
+          display: grid;
+          grid-template-columns: 1fr 1.5fr;
+          gap: 60px;
+          margin-bottom: 120px;
+        }
+
+        /* LEFT: INFO BOX */
+        .info-panel {
+          display: flex;
+          flex-direction: column;
+          gap: 40px;
+        }
+
+        .info-card {
+          background: var(--bg-dark);
+          padding: 30px;
+          border-left: 3px solid var(--red-primary);
+          display: flex;
+          align-items: flex-start;
+          gap: 20px;
+          transition: transform 0.3s;
+        }
+
+        .info-card:hover {
+          transform: translateX(10px);
+          background: #111;
+        }
+
+        .icon-box {
+          font-size: 24px;
+          color: var(--red-primary);
+          background: rgba(201, 14, 30, 0.1);
+          padding: 15px;
+          border-radius: 50%;
+        }
+
+        .info-content h3 {
+          font-family: 'Teko', sans-serif;
+          font-size: 24px;
+          margin-bottom: 5px;
+          text-transform: uppercase;
+        }
+
+        .info-content p {
+          color: #aaa;
+          font-size: 16px;
+          line-height: 1.5;
+        }
+
+        /* Map Placeholder */
+        .map-box {
+          height: 200px;
+          background-image: url('https://images.unsplash.com/photo-1524661135-423995f22d0b?q=80&w=1000&auto=format&fit=crop');
+          background-size: cover;
+          background-position: center;
+          border: 1px solid var(--border-color);
+          position: relative;
+          opacity: 0.7;
+        }
+        
+        .map-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(201, 14, 30, 0.2);
+            mix-blend-mode: overlay;
+        }
+
+        /* RIGHT: FORM */
+        .form-panel {
+          background: var(--bg-dark);
+          padding: 50px;
+          border: 1px solid var(--border-color);
+          position: relative;
+        }
+
+        .form-panel::before {
+          content: '';
+          position: absolute;
+          top: 0; left: 0;
+          width: 100px; height: 3px;
+          background: var(--red-primary);
+        }
+
+        .form-row {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 20px;
+          margin-bottom: 20px;
+        }
+
+        .input-group {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+          margin-bottom: 20px;
+        }
+
+        .input-group label {
+          font-size: 14px;
+          font-weight: 700;
+          color: #aaa;
+          text-transform: uppercase;
+          letter-spacing: 1px;
+        }
+
+        .custom-input, .custom-textarea {
+          background: #050505;
+          border: 1px solid #333;
+          padding: 15px;
+          color: #fff;
+          font-family: 'Rajdhani', sans-serif;
+          font-size: 16px;
+          outline: none;
+          transition: all 0.3s;
+        }
+
+        .custom-input:focus, .custom-textarea:focus {
+          border-color: var(--red-primary);
+          box-shadow: 0 0 10px rgba(201, 14, 30, 0.2);
+        }
+
+        .custom-textarea {
+          height: 150px;
+          resize: none;
+        }
+
+        .submit-btn {
+          background: var(--red-primary);
+          color: #fff;
+          border: none;
+          padding: 15px 40px;
+          font-family: 'Teko', sans-serif;
+          font-size: 20px;
+          text-transform: uppercase;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.3s;
+          width: 100%;
+          clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+        }
+
+        .submit-btn:hover {
+          background: #fff;
+          color: #000;
+        }
+
+        /* === DEVELOPER TEAM SECTION === */
+        .team-section {
+          padding-bottom: 100px;
+          text-align: center;
+        }
+
+        .team-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+          gap: 40px;
+          margin-top: 60px;
+        }
+
+        .dev-card {
+          background: var(--glass-bg);
+          border: 1px solid var(--border-color);
+          padding: 40px 20px;
+          position: relative;
+          transition: transform 0.3s, border-color 0.3s;
+          overflow: hidden;
+        }
+
+        .dev-card:hover {
+          transform: translateY(-10px);
+          border-color: var(--red-primary);
+        }
+
+        .dev-img-container {
+          width: 120px;
+          height: 120px;
+          margin: 0 auto 20px;
+          position: relative;
+        }
+
+        .dev-img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          border-radius: 50%;
+          border: 3px solid #333;
+          transition: border-color 0.3s;
+        }
+
+        .dev-card:hover .dev-img {
+          border-color: var(--red-primary);
+        }
+
+        .dev-card h3 {
+          font-family: 'Teko', sans-serif;
+          font-size: 28px;
+          text-transform: uppercase;
+          margin-bottom: 5px;
+        }
+
+        .dev-role {
+          color: var(--red-primary);
+          font-weight: 700;
+          font-size: 14px;
+          text-transform: uppercase;
+          letter-spacing: 2px;
+          margin-bottom: 20px;
+        }
+
+        .social-links {
+          display: flex;
+          justify-content: center;
+          gap: 15px;
+        }
+
+        .social-icon {
+          color: #666;
+          font-size: 18px;
+          transition: color 0.3s;
+          cursor: pointer;
+        }
+
+        .social-icon:hover {
+          color: #fff;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 900px) {
+          .contact-grid {
+            grid-template-columns: 1fr;
+          }
+          .form-row {
+            grid-template-columns: 1fr;
+          }
+        }
+      `}</style>
+
+      <div className="container">
+        
+        {/* HEADER */}
+        <div className="section-header">
+          <h1>Contact <span className="highlight-red">Support</span></h1>
+          <p>Have questions about tournaments, scouting, or team management? Our ops team is standing by.</p>
         </div>
-      </section>
+
+        {/* CONTACT CONTENT */}
+        <div className="contact-grid">
+          
+          {/* LEFT SIDE: INFO */}
+          <div className="info-panel">
+            
+            <div className="info-card">
+              <div className="icon-box"><FaMapMarkerAlt /></div>
+              <div className="info-content">
+                <h3>Headquarters</h3>
+                <p>123 eSports Arena Blvd,<br />Los Angeles, CA 90210</p>
+              </div>
+            </div>
+
+            <div className="info-card">
+              <div className="icon-box"><FaEnvelope /></div>
+              <div className="info-content">
+                <h3>Email Us</h3>
+                <p>support@escout.gg<br />partnerships@escout.gg</p>
+              </div>
+            </div>
+
+            <div className="info-card">
+              <div className="icon-box"><FaPhoneAlt /></div>
+              <div className="info-content">
+                <h3>Call Line</h3>
+                <p>+1 (555) 019-2834<br />Mon-Fri, 9am - 6pm PST</p>
+              </div>
+            </div>
+
+            <div className="map-box">
+                <div className="map-overlay"></div>
+            </div>
+
+          </div>
+
+          {/* RIGHT SIDE: FORM */}
+          <div className="form-panel">
+            <form>
+              <div className="form-row">
+                <div className="input-group">
+                  <label>Full Name</label>
+                  <input type="text" className="custom-input" placeholder="ENTER NAME" />
+                </div>
+                <div className="input-group">
+                  <label>Email Address</label>
+                  <input type="email" className="custom-input" placeholder="ENTER EMAIL" />
+                </div>
+              </div>
+
+              <div className="form-row">
+                <div className="input-group">
+                  <label>Phone (Optional)</label>
+                  <input type="text" className="custom-input" placeholder="+1 ..." />
+                </div>
+                <div className="input-group">
+                  <label>Subject</label>
+                  <input type="text" className="custom-input" placeholder="RE: INQUIRY" />
+                </div>
+              </div>
+
+              <div className="input-group">
+                <label>Message</label>
+                <textarea className="custom-textarea" placeholder="TYPE YOUR MESSAGE..."></textarea>
+              </div>
+
+              <button type="submit" className="submit-btn">TRANSMIT MESSAGE</button>
+            </form>
+          </div>
+
+        </div>
+
+        {/* DEVELOPER SECTION */}
+        <div className="team-section">
+          <div className="section-header">
+            <h1>Meet The <span className="highlight-red">Devs</span></h1>
+            <p>The architects behind the eScout platform.</p>
+          </div>
+
+          <div className="team-grid">
+            {developers.map((dev, index) => (
+              <div key={index} className="dev-card">
+                <div className="dev-img-container">
+                  <img src={dev.img} alt={dev.name} className="dev-img" />
+                </div>
+                <h3>{dev.name}</h3>
+                <div className="dev-role">{dev.role}</div>
+                
+                <div className="social-links">
+                  <FaTwitter className="social-icon" />
+                  <FaLinkedin className="social-icon" />
+                  <FaDiscord className="social-icon" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+      </div>
     </div>
   );
-};
-
-/* ===== INLINE CSS STYLES ===== */
-const styles = {
-  page: {
-    fontFamily: "'Poppins', sans-serif",
-    backgroundColor: "#0b0b0b",
-    color: "#fff",
-    padding: "80px 8%",
-  },
-
-  contactSection: {
-    textAlign: "center",
-    marginBottom: "100px",
-  },
-
-  heading: {
-    fontSize: "36px",
-    marginBottom: "40px",
-    color: "#be5e1e",
-    letterSpacing: "1px",
-  },
-
-  contactForm: {
-    maxWidth: "800px",
-    margin: "0 auto",
-    backgroundColor: "#121212",
-    padding: "40px",
-    borderRadius: "12px",
-    boxShadow: "0 4px 25px rgba(0,0,0,0.6)",
-  },
-
-  row: {
-    display: "flex",
-    gap: "20px",
-    marginBottom: "20px",
-  },
-
-  input: {
-    flex: 1,
-    padding: "15px",
-    borderRadius: "8px",
-    border: "none",
-    outline: "none",
-    backgroundColor: "#1c1c1c",
-    color: "#fff",
-    fontSize: "15px",
-  },
-
-  textarea: {
-    width: "100%",
-    height: "140px",
-    padding: "15px",
-    borderRadius: "8px",
-    border: "none",
-    outline: "none",
-    backgroundColor: "#1c1c1c",
-    color: "#fff",
-    fontSize: "15px",
-    marginBottom: "20px",
-  },
-
-  submitBtn: {
-    padding: "14px 35px",
-    backgroundColor: "#be5e1e",
-    border: "none",
-    borderRadius: "8px",
-    color: "#000",
-    fontWeight: "600",
-    fontSize: "16px",
-    cursor: "pointer",
-  },
-
-  teamSection: {
-    textAlign: "center",
-    backgroundColor: "#111",
-    padding: "70px 8%",
-    borderRadius: "12px",
-  },
-
-  subHeading: {
-    fontSize: "30px",
-    marginBottom: "40px",
-    color: "#be5e1e",
-  },
-
-  teamGrid: {
-    display: "flex",
-    justifyContent: "center",
-    gap: "50px",
-    flexWrap: "wrap",
-  },
-
-  teamCard: {
-    backgroundColor: "#1a1a1a",
-    padding: "30px",
-    borderRadius: "10px",
-    width: "250px",
-    boxShadow: "0 3px 15px rgba(0,0,0,0.4)",
-  },
-
-  teamImg: {
-    width: "100px",
-    height: "100px",
-    borderRadius: "50%",
-    marginBottom: "15px",
-  },
 };
 
 export default ContactPage;

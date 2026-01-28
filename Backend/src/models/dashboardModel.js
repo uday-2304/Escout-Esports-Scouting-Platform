@@ -7,6 +7,7 @@ const dashboardVideoSchema = new mongoose.Schema(
     game: {
       type: String,
       required: true,
+      // Ensure your Frontend sends exactly one of these strings
       enum: ["PUBG", "Free Fire", "Valorant", "COD", "Fortnite", "Minecraft"],
     },
 

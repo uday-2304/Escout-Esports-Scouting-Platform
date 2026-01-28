@@ -3,7 +3,9 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { FaGoogle, FaRegEye, FaRegEyeSlash } from "react-icons/fa6";
 import api from "../api/Axios";
 
-
+// --- IMPORT YOUR LOCAL IMAGE HERE ---
+// Ensure this file exists in your assets folder
+import AuthBg from "../assets/login.jpg"; 
 
 const AuthPage = () => {
   const navigate = useNavigate();
@@ -99,7 +101,8 @@ const AuthPage = () => {
         {/* Import Fonts dynamically */}
         <style>
             {`
-            @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Poppins:wght@300;400;500;600&display=swap');
+            @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Orbitron:wght@400;500;800;900&family=Inter:wght@400;500&display=swap');
+
             /* Custom Scrollbar for form panel */
             .scroll-panel::-webkit-scrollbar {
               width: 6px;
@@ -131,7 +134,7 @@ const AuthPage = () => {
 
                 </div>
             </div>
-            {/* Abstract Overlay */}
+            {/* Abstract Overlay (Red Coating) */}
             <div style={styles.imageOverlay}></div>
         </div>
 
@@ -250,7 +253,7 @@ const AuthPage = () => {
 
                 </form>
 
-                {/* Footer Switch - NOW VISIBLE */}
+                {/* Footer Switch */}
                 <div style={styles.footer}>
                     <p style={styles.switchText}>
                         {isLogin ? "Don't have an account? " : "Already have an account? "}
@@ -319,33 +322,38 @@ const styles = {
     backgroundColor: "#fff",
     borderRadius: "30px",
     display: "flex",
-    overflow: "hidden", // Ensures the rounded corners clip the content
+    overflow: "hidden", 
     boxShadow: "0 20px 50px rgba(0,0,0,0.5)",
   },
   
-  // === Left Panel ===
+  // === Left Panel (UPDATED WITH LOCAL IMAGE) ===
   leftPanel: {
     flex: "1",
     position: "relative",
-   backgroundImage: "url('https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=2070&auto=format&fit=crop')",
+    // Use the imported image variable here
+    backgroundImage: `url(${AuthBg})`,
     backgroundSize: "cover",
     backgroundPosition: "center",
-    display: "flex", // Default flex for left panel
+    display: "flex",
     flexDirection: "column",
     justifyContent: "space-between",
     padding: "60px",
     color: "#fff",
   },
-  // Ensure left panel is hidden on very small screens if desired, or keep as is
+  
+  // --- RED COATING OVERLAY ---
   imageOverlay: {
     position: "absolute",
     top: 0, 
     left: 0,
     width: "100%",
     height: "100%",
-    background: "linear-gradient(to bottom, rgba(0,0,0,0.1), rgba(0,0,0,0.6))",
+    /* Red Gradient: Starts Dark top -> Fades to Red at bottom */
+    background: "linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(194, 3, 41, 0.83))", 
     zIndex: 1,
+    mixBlendMode: "multiply", // Helps the red soak into the image
   },
+
   leftContent: {
     position: "relative",
     zIndex: 2,
@@ -372,39 +380,32 @@ const styles = {
     marginBottom: "20px",
   },
   heroTitle: {
-    fontFamily: "'Playfair Display', serif",
+    fontFamily: "'Orbitron', serif",
     fontSize: "56px",
     lineHeight: "1.1",
     marginBottom: "20px",
     fontWeight: "400",
   },
-  heroSubtitle: {
-    fontSize: "14px",
-    opacity: "0.8",
-    maxWidth: "300px",
-    lineHeight: "1.6",
-  },
-
-  // === Right Panel (UPDATED) ===
+  
+  // === Right Panel ===
   rightPanel: {
     flex: "1",
     backgroundColor: "#fff",
     display: "flex",
     flexDirection: "column",
-    // Remove centered vertical alignment to allow scrolling from top
     alignItems: "center", 
-    padding: "30px 40px", // Reduced top/bottom padding
+    padding: "30px 40px", 
     position: "relative",
-    overflowY: "auto", // SCROLL ENABLED
+    overflowY: "auto", 
   },
   formWrapper: {
     width: "100%",
     maxWidth: "380px",
-    margin: "auto 0", // Center vertically if space exists
+    margin: "auto 0", 
   },
   brandHeader: {
     display: "flex",
-    justifyContent: "flex-end", // Align logo to right
+    justifyContent: "flex-end", 
     marginBottom: "20px",
   },
   logo: {
@@ -431,7 +432,7 @@ const styles = {
   form: {
     display: "flex",
     flexDirection: "column",
-    gap: "14px", // Reduced gap to fit better
+    gap: "14px", 
   },
   inputGroup: {
     display: "flex",
@@ -444,7 +445,7 @@ const styles = {
     color: "#333",
   },
   input: {
-    padding: "12px 16px", // Slightly more compact
+    padding: "12px 16px", 
     borderRadius: "10px",
     border: "none",
     backgroundColor: "#f4f6f8",
@@ -530,7 +531,7 @@ const styles = {
   footer: {
     marginTop: "25px",
     textAlign: "center",
-    paddingBottom: "10px", // Ensure padding at bottom for scroll
+    paddingBottom: "10px",
   },
   switchText: {
     fontSize: "13px",
@@ -542,7 +543,7 @@ const styles = {
     color: "#000",
     fontWeight: "700",
     cursor: "pointer",
-    textDecoration: "underline", // Added underline to make it distinct
+    textDecoration: "underline",
     marginLeft: "5px",
   },
 
@@ -567,7 +568,7 @@ const styles = {
     textAlign: "center",
     boxShadow: "0 10px 30px rgba(0,0,0,0.2)",
   },
-  modalTitle: { fontSize: "20px", color: "#000", marginBottom: "10px", fontFamily: "'Playfair Display', serif" },
+  modalTitle: { fontSize: "20px", color: "#000", marginBottom: "10px", fontFamily: "'Orbitron', serif" },
   modalText: { fontSize: "14px", color: "#666", marginBottom: "20px" },
   modalButtons: { display: "flex", flexDirection: "column", gap: "10px" },
   cancelBtn: {

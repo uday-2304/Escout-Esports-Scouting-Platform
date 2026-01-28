@@ -6,18 +6,23 @@ import { ApiError } from "../utils/ApiError.js";
 export const addDashboardVideo = asyncHandler(async (req, res) => {
   const { title, game } = req.body;
 
-  if (!title || !game || !req.files?.thumbnail || !req.files?.video) {
-    throw new ApiError(400, "All fields are required");
+  // 🛡️ SAFE CHECK: Ensure files exist before accessing [0].path
+  const thumbnailLocalPath = req.files?.thumbnail?.[0]?.path;
+  const videoLocalPath = req.files?.video?.[0]?.path;
+
+  if (!title || !game) {
+    throw new ApiError(400, "Title and Game fields are required");
   }
 
-  const thumbnailUrl = req.files.thumbnail[0].path;
-  const videoUrl = req.files.video[0].path;
+  if (!thumbnailLocalPath || !videoLocalPath) {
+    throw new ApiError(400, "Both Thumbnail and Video files are required");
+  }
 
   const video = await DashboardVideo.create({
     title,
     game,
-    thumbnail: thumbnailUrl,
-    videoUrl,
+    thumbnail: thumbnailLocalPath, // Cloudinary URL from multer-storage
+    videoUrl: videoLocalPath,      // Cloudinary URL from multer-storage
     owner: req.user._id,
   });
 
@@ -67,15 +72,12 @@ export const toggleLike = asyncHandler(async (req, res) => {
 
   const userId = req.user._id.toString();
 
-  // 🔴 FIX: Compare ObjectId as string
-  const index = video.likes.findIndex(
-    (id) => id.toString() === userId
-  );
+  const index = video.likes.findIndex((id) => id.toString() === userId);
 
   if (index !== -1) {
-    video.likes.splice(index, 1);
+    video.likes.splice(index, 1); // Unlike
   } else {
-    video.likes.push(userId);
+    video.likes.push(userId); // Like
   }
 
   await video.save();

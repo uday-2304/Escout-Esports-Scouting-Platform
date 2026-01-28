@@ -8,17 +8,17 @@ const storage = new CloudinaryStorage({
     folder: file.mimetype.startsWith("video")
       ? "dashboard/videos"
       : "dashboard/thumbnails",
-
-    resource_type: "auto",        // ✅ FIX
-    chunk_size: 6 * 1024 * 1024,  // ✅ Prevent ECONNRESET
-    use_filename: true,
-    unique_filename: true,
+    resource_type: "auto",
+    // chunk_size: 6000000, // Optional: useful for very large files on slow networks
   }),
 });
 
 export const upload = multer({
   storage,
   limits: {
-    fileSize: 300 * 1024 * 1024, // 300MB
+    // ⚠️ CLOUDINARY FREE TIER LIMIT IS 100MB.
+    // If you set this higher (e.g., 300MB) without a paid plan, 
+    // Cloudinary will reject the upload with a 400 error.
+    fileSize: 100 * 1024 * 1024, 
   },
 });

@@ -8,7 +8,7 @@ import {
   faBell,
   faSignOutAlt,
   faIdCard,
-  faGamepad 
+  faGamepad
 } from "@fortawesome/free-solid-svg-icons";
 import { NavLink, useNavigate } from "react-router-dom";
 
@@ -71,6 +71,10 @@ const Navbar = () => {
         <nav className={`nav-links ${menuOpen ? "open" : ""}`}>
           <NavLink to="/" className="nav-item" onClick={() => setMenuOpen(false)}>
             Home
+          </NavLink>
+          {/* TOURNAMENTS LINK */}
+          <NavLink to="/tournaments" className="nav-item" onClick={() => setMenuOpen(false)}>
+            Tournaments
           </NavLink>
           <NavLink to="/arena-hub" className="nav-item" onClick={() => setMenuOpen(false)}>
             Arena Hub

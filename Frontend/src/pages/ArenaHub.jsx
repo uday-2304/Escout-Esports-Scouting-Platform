@@ -3,7 +3,7 @@ import { FaSearch, FaPlay, FaCircle, FaChevronDown, FaChevronRight } from "react
 import { IoMdClose } from "react-icons/io";
 
 const API_BASE_URL = "http://localhost:8000";
-const GAMES = ["All", "PUBG", "FreeFire", "Fortnite", "COD", "Minecraft"];
+const GAMES = ["All", "PUBG", "FreeFire", "Fortnite", "COD", "Valorant"];
 
 const ArenaHub = () => {
   const [videos, setVideos] = useState({});
@@ -74,7 +74,7 @@ const ArenaHub = () => {
             color: #ff001f; font-family: 'Teko', sans-serif; font-size: 30px; letter-spacing: 5px;
           }
         `}</style>
-        <div className="loader-text">INITIALIZING DATALINK...</div>
+        <div className="loader-text">INITIALIZING_DATALINK...</div>
       </div>
     );
   }

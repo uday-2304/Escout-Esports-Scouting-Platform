@@ -3,24 +3,27 @@ import axios from "axios";
 const YOUTUBE_API_KEY = process.env.YOUTUBE_API_KEY;
 
 const GAME_CHANNELS = {
-  PUBG: ["UCZOW4EOIU_jwHhybPh6q0LQ"],
-  FreeFire: ["UCP7WsVTkbPP9EaIFIUgwngg", "UCrPezsltlsZZiEkxTE2l39g"],
-  Minecraft: ["UCiEnPge5PyrMQXWTBsjkA5A"],
+  PUBG: ["UCHIS4ceYnZYpVXO31Fkg5_g", "UCibWZzkjMuzaYd0epLLjRpA"],
+  FreeFire: ["UChLeCIE6M49IgW0anxMm4lw", "UCrPezsltlsZZiEkxTE2l39g"],
+  Fortnite: ["UCEe2aqK4fgDYTOjkZvTvang"],
+  Valorant: ["UC1_PJ9hWfuurTjmcBkNlo4A"],
+  COD: ["UCVzejkZ0GVweFmMe8D_4w4A"],
 };
 
 const GAME_KEYWORDS = {
   PUBG: ["pubg", "bgmi", "battlegrounds"],
   FreeFire: ["free fire", "ff"],
-  Minecraft: ["minecraft"],
+  Fortnite: ["fortnite"],
+  Valorant: ["valorant"],
+  COD:["call of duty","cod"],
 };
 
-/* ISO duration → seconds */
 const isoToSeconds = (iso) => {
   const match = iso.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
   return (
     (Number(match?.[1] || 0) * 3600) +
     (Number(match?.[2] || 0) * 60) +
-    Number(match?.[3] || 0)
+    (Number(match?.[3] || 0))
   );
 };
 
@@ -35,20 +38,23 @@ export const getArenaVideos = async (req, res) => {
     const videosByGame = {};
 
     for (const game in GAME_CHANNELS) {
-      let collected = [];
+      // 1. Array to hold videos from ALL channels for this game
+      let allChannelsVideos = [];
 
+      // 2. Iterate through every channel for the game
       for (const channelId of GAME_CHANNELS[game]) {
+        let channelCollected = []; // Store videos just for this specific channel
         let pageToken = null;
 
-        while (collected.length < 16) {
-          /* 1️⃣ Fetch latest videos */
+        // Fetch up to 10 valid videos per channel (to ensure we get a mix)
+        while (channelCollected.length < 10) {
           const searchRes = await axios.get(
             "https://www.googleapis.com/youtube/v3/search",
             {
               params: {
                 part: "id",
                 channelId,
-                maxResults: 50,
+                maxResults: 20, // Fetch a batch
                 pageToken,
                 type: "video",
                 order: "date",
@@ -66,7 +72,6 @@ export const getArenaVideos = async (req, res) => {
 
           if (!videoIds) break;
 
-          /* 2️⃣ Get full details */
           const videoRes = await axios.get(
             "https://www.googleapis.com/youtube/v3/videos",
             {
@@ -78,35 +83,43 @@ export const getArenaVideos = async (req, res) => {
             }
           );
 
-          /* 3️⃣ FILTER STRICTLY */
           for (const video of videoRes.data.items) {
-            if (collected.length >= 16) break;
+             // Stop if we have enough for this specific channel
+            if (channelCollected.length >= 10) break;
 
             const duration = isoToSeconds(video.contentDetails.duration);
             const title = video.snippet.title;
             const description = video.snippet.description;
 
             const isValid =
-              duration > 150 && // ❌ shorts
-              video.snippet.liveBroadcastContent === "none" && // ❌ live
-              containsGameKeyword(title + " " + description, game); // ❌ other games
+              duration > 150 && 
+              video.snippet.liveBroadcastContent === "none" && 
+              containsGameKeyword(title + " " + description, game);
 
             if (isValid) {
-              collected.push(video);
+              channelCollected.push(video);
             }
           }
 
-          if (!pageToken) break;
+          // If no next page, stop fetching for this channel
+          if (!pageToken) break; 
         }
+
+        // Add this channel's videos to the main game array
+        allChannelsVideos = [...allChannelsVideos, ...channelCollected];
       }
 
-      videosByGame[game] = collected;
+      // 3. MERGE & SORT: Sort all videos by date (newest first)
+      allChannelsVideos.sort((a, b) => {
+        return new Date(b.snippet.publishedAt) - new Date(a.snippet.publishedAt);
+      });
+
+      // 4. SLICE: Take the top 16 from the combined list
+      videosByGame[game] = allChannelsVideos.slice(0, 16);
     }
 
     res.json(videosByGame);
-  } 
-  
-  catch (err) {
+  } catch (err) {
     console.error("ARENA ERROR:", err.response?.data || err.message);
     res.status(500).json({ error: "Arena fetch failed" });
   }

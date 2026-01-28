@@ -27,7 +27,7 @@ import ArenaHub from "./pages/ArenaHub";
 import OtpPage from "./pages/OtpPage";
 import AddVideo from "./pages/AddVideo";
 import ResetPasswordPage from "./pages/resetPassword";
-
+import TournamentsPage from "./pages/TournamentsPage";
 const AppContent = () => {
   const location = useLocation();
   const isHome = location.pathname === "/";
@@ -57,6 +57,7 @@ const AppContent = () => {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/arena-hub" element={<ArenaHub />} />
           <Route path="/add-video" element={<AddVideo />} />
+          <Route path="/tournaments" element={<TournamentsPage />} />
         </Routes>
 
     </div>
