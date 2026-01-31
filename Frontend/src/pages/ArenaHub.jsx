@@ -3,7 +3,7 @@ import { FaSearch, FaPlay, FaChevronDown, FaChevronRight, FaHeart, FaPaperPlane,
 import { IoMdClose } from "react-icons/io";
 import { formatNumber } from "../utils/formatters";
 
-const API_BASE_URL = "http://localhost:8000";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
 const GAMES = ["All", "PUBG", "FreeFire", "Fortnite", "COD", "Valorant"];
 
 import LoginGate from "../components/LoginGate";
