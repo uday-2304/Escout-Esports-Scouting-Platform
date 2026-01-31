@@ -14,7 +14,7 @@ export const sendEmail = async ({ to, subject, html }) => {
     sendSmtpEmail.subject = subject;
     sendSmtpEmail.htmlContent = html;
     sendSmtpEmail.sender = {
-      name: "ROAM AI",
+      name: "Escout",
       email: process.env.SMTP_EMAIL || "satyateja1707@gmail.com"
     };
     sendSmtpEmail.to = [{ email: to }];

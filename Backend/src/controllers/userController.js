@@ -43,7 +43,7 @@ const register = asyncHandler(async (req, res) => {
 			to: email,
 			subject: "Otp Verification for registration",
 			html: `<p>Hi ${name},</p>
-				<p>Use the following OTP to complete your registration. It expires in 15 minutes.</p>
+				<p>Use the following OTP to complete your registration. It expires in 5 minutes.</p>
 				<h2 style="letter-spacing:6px">${otp}</h2>`,
 		});
 	} catch (err) {
