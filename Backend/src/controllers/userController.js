@@ -22,7 +22,8 @@ const register = asyncHandler(async (req, res) => {
 	req.session.registrationData = {
 		name,
 		email,
-		password, // will be hashed by model pre-save when creating user
+		password, // will be hashed
+		// by model pre-save when creating user
 		role,
 		otp,
 		timestamp: Date.now(),
@@ -64,7 +65,7 @@ const verifyOtpAndRegister = asyncHandler(async (req, res) => {
 	const age = Date.now() - (registrationData.timestamp || 0);
 	if (age > 10 * 60 * 1000) {
 		// destroy stale session data
-		req.session.destroy(() => {});
+		req.session.destroy(() => { });
 		throw new ApiError(400, "OTP expired. Please register again.");
 	}
 
@@ -252,11 +253,24 @@ const resetPassword = asyncHandler(async (req, res) => {
 	res.json(new ApiResponse(200, null, "Password reset successful"));
 });
 
-// Social auth placeholders (frontend should use proper OAuth flow)
+// Social auth placeholders
 const socialAuthRedirect = asyncHandler(async (req, res) => {
-	// Providers: google, facebook, twitter
 	const { provider } = req.params;
-	res.json(new ApiResponse(200, null, `Use ${provider} OAuth on the frontend; configure server if you want server-side flow.`));
+	res.json(new ApiResponse(200, null, `Use ${provider} OAuth on the frontend.`));
+});
+
+// GET CURRENT USER PROFILE
+const getCurrentUser = asyncHandler(async (req, res) => {
+	const user = req.user;
+	const userDTO = {
+		_id: user._id,
+		name: user.name,
+		email: user.email,
+		role: user.role,
+		isAccountVerified: user.isAccountVerified,
+		joinedAt: user.createdAt,
+	};
+	res.json(new ApiResponse(200, userDTO, "User details fetched successfully"));
 });
 
 export {
@@ -269,4 +283,5 @@ export {
 	requestPasswordReset,
 	resetPassword,
 	socialAuthRedirect,
+	getCurrentUser,
 };

@@ -1,47 +1,118 @@
 import React, { useEffect, useState } from "react";
-import { FaSearch, FaPlay, FaCircle, FaChevronDown, FaChevronRight } from "react-icons/fa";
+import { FaSearch, FaPlay, FaChevronDown, FaChevronRight, FaHeart, FaPaperPlane, FaCommentAlt } from "react-icons/fa";
 import { IoMdClose } from "react-icons/io";
+import { formatNumber } from "../utils/formatters";
 
 const API_BASE_URL = "http://localhost:8000";
 const GAMES = ["All", "PUBG", "FreeFire", "Fortnite", "COD", "Valorant"];
 
+import LoginGate from "../components/LoginGate";
+
 const ArenaHub = () => {
+  const token = localStorage.getItem("token");
+  if (!token) return <LoginGate />;
+
   const [videos, setVideos] = useState({});
   const [selectedGame, setSelectedGame] = useState("All");
-  const [selectedRole, setSelectedRole] = useState("players"); 
-  const [expandedSection, setExpandedSection] = useState("players"); 
+
+  // 'players' (DB) or 'creators' (YouTube)
+  const [activeSection, setActiveSection] = useState("players");
+  const [expandedSection, setExpandedSection] = useState("players"); // Sidebar UI state
+
   const [selectedVideo, setSelectedVideo] = useState(null);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
-  const [visibleCount, setVisibleCount] = useState(9);
+  const [visibleCount, setVisibleCount] = useState(12);
+
+  /* ===== Auth & Social ===== */
+  // Robustly get User ID (LocalStorage or Token Decode)
+  let currentUserId = localStorage.getItem("userId");
+  if (!currentUserId && token) {
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      currentUserId = payload._id || payload.id;
+    } catch (e) {
+      console.error("Token decode failed", e);
+    }
+  }
 
   /* ===== Fetch Logic ===== */
   useEffect(() => {
-    // Note: Make sure your local backend is running at this address
-    fetch(`${API_BASE_URL}/api/arena/arena-videos`)
+    setLoading(true);
+    let endpoint = "";
+
+    if (activeSection === "creators") {
+      endpoint = `${API_BASE_URL}/api/arena/arena-videos`;
+    } else {
+      endpoint = `${API_BASE_URL}/api/arena/players-videos`;
+    }
+
+    fetch(endpoint)
       .then((res) => res.json())
       .then((data) => {
         setVideos(data || {});
         setLoading(false);
       })
-      .catch(() => {
-        console.error("Failed to fetch videos. Using empty data.");
+      .catch((err) => {
+        console.error("Failed to fetch videos:", err);
         setVideos({});
         setLoading(false);
       });
-  }, []);
+  }, [activeSection]); // Re-fetch when section changes
 
+  // Reset visible count on filter change
   useEffect(() => {
     setVisibleCount(12);
-  }, [selectedGame, selectedRole, search]);
+  }, [selectedGame, activeSection, search]);
+
+  /* ===== REFRESH DATA ===== */
+  const refreshData = () => {
+    const endpoint = activeSection === "creators" ? `${API_BASE_URL}/api/arena/arena-videos` : `${API_BASE_URL}/api/arena/players-videos`;
+    fetch(endpoint).then(res => res.json()).then(data => setVideos(data));
+  };
 
   const toggleSection = (section) => {
     setExpandedSection(expandedSection === section ? null : section);
+    // When expanding a section, also make it active to fetch data
+    if (expandedSection !== section) {
+      setActiveSection(section);
+      setSelectedGame("All");
+    }
   };
 
-  const handleSelection = (role, game) => {
-    setSelectedRole(role);
+  const handleSelection = (section, game) => {
+    setActiveSection(section);
     setSelectedGame(game);
+  };
+
+  /* ===== LIKE LOGIC (Grid) ===== */
+  const likeVideo = async (id, e) => {
+    e.stopPropagation();
+    // Optimistic update
+    const updatedVideos = { ...videos };
+    let found = false;
+
+    // Find video in nested structure
+    for (const gameKey in updatedVideos) {
+      updatedVideos[gameKey] = updatedVideos[gameKey].map(v => {
+        if (v.id === id || v.id?.videoId === id) {
+          found = true;
+          // Optimistic logic could go here, but since structure is complex, we just fetch
+        }
+        return v;
+      });
+      if (found) break;
+    }
+
+    try {
+      await fetch(`http://localhost:8001/api/arena/${id}/like`, {
+        method: "PUT",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      refreshData();
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   /* ===== Shuffle helper ===== */
@@ -58,23 +129,23 @@ const ArenaHub = () => {
   const allVideos = Object.values(videos).flat();
   let displayVideos = selectedGame === "All" ? shuffleArray(allVideos) : videos[selectedGame] || [];
 
-  // Safety check in case displayVideos is undefined
+  // Search Filter
   displayVideos = (displayVideos || []).filter((video) =>
     video?.snippet?.title?.toLowerCase().includes(search.toLowerCase()) ||
     video?.snippet?.channelTitle?.toLowerCase().includes(search.toLowerCase())
   );
 
+  /* ===== Loading Screen ===== */
   if (loading) {
     return (
       <div className="loading-screen">
-        {/* Embedded style for loading screen */}
         <style>{`
           .loading-screen {
             height: 100vh; background: #080808; display: flex; align-items: center; justify-content: center;
             color: #ff001f; font-family: 'Teko', sans-serif; font-size: 30px; letter-spacing: 5px;
           }
         `}</style>
-        <div className="loader-text">INITIALIZING_DATALINK...</div>
+        <div className="loader-text">ACCESSING_{activeSection.toUpperCase()}_DATALINK...</div>
       </div>
     );
   }
@@ -87,7 +158,6 @@ const ArenaHub = () => {
 
         :root {
           --bg-black: #080808;
-          --bg-dark: #0f0f0f;
           --red-primary: #ff001f;
           --text-white: #f0f0f0;
           --text-dim: #666;
@@ -95,7 +165,6 @@ const ArenaHub = () => {
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
-
         body { background: var(--bg-black); }
 
         .arena-layout {
@@ -106,7 +175,7 @@ const ArenaHub = () => {
           font-family: 'Rajdhani', sans-serif;
         }
 
-        /* ===== SIDEBAR ===== */
+        /* SIDEBAR */
         .sidebar {
           width: 260px;
           background: rgba(10, 10, 10, 0.95);
@@ -114,318 +183,124 @@ const ArenaHub = () => {
           display: flex;
           flex-direction: column;
           position: fixed;
-          height: 100vh;
+          top: 80px;
+          height: calc(100vh - 80px);
           z-index: 50;
-          backdrop-filter: blur(10px);
         }
 
-        .brand-section {
-          padding: 40px 30px;
-          border-bottom: 1px solid var(--border-dark);
-        }
-
-        .sidebar-title {
-          font-family: 'Teko', sans-serif;
-          font-size: 28px;
-          color: #fff;
-          letter-spacing: 1px;
-          line-height: 1;
-        }
-
+        .brand-section { padding: 40px 30px; border-bottom: 1px solid var(--border-dark); }
+        .sidebar-title { font-family: 'Teko', sans-serif; font-size: 28px; color: #fff; line-height: 1; }
         .sidebar-title span { color: var(--red-primary); }
 
-        .menu-container {
-          padding: 20px 0;
-          overflow-y: auto;
-        }
+        .menu-container { padding: 20px 0; overflow-y: auto; }
 
-        /* MENU GROUPS */
         .group-header {
-          width: 100%;
-          padding: 15px 30px;
-          background: transparent;
-          border: none;
-          color: #888;
-          font-family: 'Rajdhani', sans-serif;
-          font-size: 13px;
-          font-weight: 700;
-          letter-spacing: 2px;
-          cursor: pointer;
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          transition: color 0.3s;
+          width: 100%; padding: 15px 30px; background: transparent; border: none;
+          color: #888; font-family: 'Rajdhani', sans-serif; font-size: 13px;
+          font-weight: 700; letter-spacing: 2px; cursor: pointer;
+          display: flex; justify-content: space-between; align-items: center;
         }
-
-        .group-header:hover { color: #fff; }
+        .group-header:hover, .group-header.active-header { color: #fff; text-shadow: 0 0 10px rgba(255,0,31,0.5); }
 
         .group-list {
-          max-height: 0;
-          overflow: hidden;
-          transition: max-height 0.4s ease;
+          max-height: 0; overflow: hidden; transition: max-height 0.4s ease;
           background: rgba(255, 255, 255, 0.02);
         }
-
         .group-list.open { max-height: 500px; }
 
         .game-btn {
-          width: 100%;
-          padding: 12px 30px 12px 45px;
-          background: transparent;
-          border: none;
-          color: #aaa;
-          text-align: left;
-          font-family: 'Rajdhani', sans-serif;
-          font-size: 15px;
-          font-weight: 600;
-          cursor: pointer;
-          transition: all 0.2s;
-          display: flex;
-          align-items: center;
-          gap: 10px;
+          width: 100%; padding: 12px 30px 12px 45px; background: transparent;
+          border: none; color: #aaa; text-align: left; font-family: 'Rajdhani', sans-serif;
+          font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.2s;
           border-left: 2px solid transparent;
         }
-
-        .game-btn:hover {
-          color: #fff;
-          background: rgba(255, 255, 255, 0.05);
-        }
-
+        .game-btn:hover { color: #fff; background: rgba(255, 255, 255, 0.05); }
         .game-btn.active {
           color: var(--red-primary);
           background: linear-gradient(90deg, rgba(255, 0, 31, 0.1), transparent);
           border-left: 2px solid var(--red-primary);
         }
 
-        /* ===== MAIN CONTENT ===== */
-        .content {
-          flex: 1;
-          margin-left: 260px;
-          padding: 50px 60px;
-        }
+        /* MAIN CONTENT */
+        .content { flex: 1; margin-left: 260px; padding: 50px 60px; margin-top: 80px; }
 
-        /* HEADER */
         .header {
-          display: flex;
-          justify-content: space-between;
-          align-items: flex-end;
-          margin-bottom: 50px;
-          border-bottom: 1px solid var(--border-dark);
-          padding-bottom: 20px;
+          display: flex; justify-content: space-between; align-items: flex-end;
+          margin-bottom: 50px; border-bottom: 1px solid var(--border-dark); padding-bottom: 20px;
         }
-
         .page-title h1 {
-          font-family: 'Teko', sans-serif;
-          font-size: 60px;
-          text-transform: uppercase;
-          line-height: 0.9;
-          margin: 0;
+          font-family: 'Teko', sans-serif; font-size: 60px; text-transform: uppercase;
+          line-height: 0.9; margin: 0;
         }
-
-        .page-subtitle {
-          color: var(--text-dim);
-          font-size: 14px;
-          letter-spacing: 2px;
-          text-transform: uppercase;
-        }
-
+        .page-subtitle { color: var(--text-dim); font-size: 14px; letter-spacing: 2px; text-transform: uppercase; }
         .highlight-text { color: var(--red-primary); }
 
-        /* SEARCH BAR */
-        .search-container {
-          position: relative;
-          width: 300px;
-        }
-
+        /* SEARCH */
+        .search-container { position: relative; width: 300px; }
         .search-input {
-          width: 100%;
-          background: transparent;
-          border: none;
-          border-bottom: 1px solid #333;
-          color: #fff;
-          padding: 10px 30px 10px 0;
-          font-family: 'Rajdhani', sans-serif;
-          font-size: 16px;
-          outline: none;
-          transition: border-color 0.3s;
+          width: 100%; background: transparent; border: none; border-bottom: 1px solid #333;
+          color: #fff; padding: 10px 30px 10px 0; font-family: 'Rajdhani', sans-serif;
+          font-size: 16px; outline: none;
         }
+        .search-icon { position: absolute; right: 0; top: 10px; color: var(--text-dim); }
 
-        .search-input:focus {
-          border-bottom-color: var(--red-primary);
-        }
+        /* VIDEO GRID */
+        .video-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 30px; }
 
-        .search-icon {
-          position: absolute;
-          right: 0;
-          top: 10px;
-          color: var(--text-dim);
-        }
-
-        /* GRID */
-        .video-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-          gap: 30px;
-        }
-
-        /* VIDEO CARD (Professional & Simple) */
-        .video-card {
-          background: transparent;
-          cursor: pointer;
-          transition: transform 0.3s ease;
-        }
-
-        .video-card:hover {
-          transform: translateY(-5px);
-        }
+        .video-card { background: transparent; cursor: pointer; transition: transform 0.3s ease; }
+        .video-card:hover { transform: translateY(-5px); }
 
         .thumbnail-box {
-          position: relative;
-          aspect-ratio: 16/9;
-          border-radius: 4px;
-          overflow: hidden;
-          background: #111;
+          position: relative; aspect-ratio: 16/9; border-radius: 4px; overflow: hidden; background: #111;
         }
+        .video-thumb { width: 100%; height: 100%; object-fit: cover; opacity: 0.9; transition: all 0.4s ease; }
+        .video-card:hover .video-thumb { opacity: 1; transform: scale(1.05); }
 
-        .video-thumb {
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-          opacity: 0.9; /* Slightly dim by default */
-          transition: all 0.4s ease;
-          /* REMOVED filter: grayscale(100%) */
-        }
-
-        .video-card:hover .video-thumb {
-          opacity: 1;
-          transform: scale(1.05);
-          /* REMOVED filter: grayscale(0%) */
-        }
-
-        /* Play Button (Hidden -> Visible) */
         .overlay-icon {
-          position: absolute;
-          inset: 0;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          opacity: 0;
-          transition: opacity 0.3s ease;
-          background: rgba(0,0,0,0.3);
+          position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+          opacity: 0; transition: opacity 0.3s ease; background: rgba(0,0,0,0.3);
         }
-
         .play-circle {
-          width: 50px;
-          height: 50px;
-          border-radius: 50%;
-          background: var(--red-primary);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          color: white;
-          box-shadow: 0 0 20px rgba(255, 0, 31, 0.5);
-          transform: scale(0.8);
-          transition: transform 0.3s;
+          width: 50px; height: 50px; border-radius: 50%; background: var(--red-primary);
+          display: flex; align-items: center; justify-content: center; color: white;
+          box-shadow: 0 0 20px rgba(255, 0, 31, 0.5); transform: scale(0.8); transition: transform 0.3s;
         }
-
         .video-card:hover .overlay-icon { opacity: 1; }
         .video-card:hover .play-circle { transform: scale(1); }
 
-        /* Card Meta */
-        .card-meta {
-          padding-top: 15px;
-        }
-
+        .card-meta { padding-top: 15px; }
         .vid-title {
-          font-size: 16px;
-          font-weight: 700;
-          color: #fff;
-          margin-bottom: 8px;
-          line-height: 1.3;
-          display: -webkit-box;
-          -webkit-line-clamp: 2;
-          -webkit-box-orient: vertical;
-          overflow: hidden;
+          font-size: 16px; font-weight: 700; color: #fff; margin-bottom: 8px; line-height: 1.3;
+          display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
         }
-
-        .vid-stats {
-          display: flex;
-          justify-content: space-between;
-          font-size: 12px;
-          color: var(--text-dim);
-          text-transform: uppercase;
-          letter-spacing: 1px;
-        }
-
-        .channel-name { color: var(--text-dim); transition: color 0.3s; }
+        .vid-stats { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; }
+        .channel-name { color: var(--text-dim); }
         .video-card:hover .channel-name { color: var(--red-primary); }
 
         /* LOAD MORE */
-        .load-more-container {
-          margin-top: 60px;
-          text-align: center;
-        }
-
+        .load-more-container { margin-top: 60px; text-align: center; }
         .load-btn {
-          background: transparent;
-          border: 1px solid #333;
-          color: #888;
-          padding: 12px 40px;
-          font-family: 'Rajdhani', sans-serif;
-          font-weight: 700;
-          cursor: pointer;
-          letter-spacing: 2px;
+          background: transparent; border: 1px solid #333; color: #888; padding: 12px 40px;
+          font-family: 'Rajdhani', sans-serif; font-weight: 700; cursor: pointer; letter-spacing: 2px;
           transition: all 0.3s;
         }
-
-        .load-btn:hover {
-          border-color: var(--red-primary);
-          color: #fff;
-          background: rgba(255, 0, 31, 0.05);
-        }
+        .load-btn:hover { border-color: var(--red-primary); color: #fff; background: rgba(255, 0, 31, 0.05); }
 
         /* MODAL */
         .modal-overlay {
-          position: fixed;
-          inset: 0;
-          background: rgba(0,0,0,0.95);
-          z-index: 1000;
-          display: flex;
-          align-items: center;
-          justify-content: center;
+          position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 1000;
+          display: flex; align-items: center; justify-content: center;
         }
-
         .modal-box {
-          width: 80%;
-          max-width: 1100px;
-          aspect-ratio: 16/9;
-          background: #000;
-          position: relative;
-          box-shadow: 0 0 50px rgba(255, 0, 31, 0.1);
-          border: 1px solid #222;
+          width: 80%; max-width: 1100px; aspect-ratio: 16/9; background: #000; position: relative;
+          box-shadow: 0 0 50px rgba(255, 0, 31, 0.1); border: 1px solid #222;
         }
-
         .close-btn {
-          position: absolute;
-          top: -40px;
-          right: 0;
-          background: none;
-          border: none;
-          color: #fff;
-          font-size: 30px;
-          cursor: pointer;
-          transition: color 0.3s;
+          position: absolute; top: -40px; right: 0; background: none; border: none;
+          color: #fff; font-size: 30px; cursor: pointer;
         }
-
         .close-btn:hover { color: var(--red-primary); }
 
-        /* SCROLLBAR */
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: #000; }
-        ::-webkit-scrollbar-thumb { background: #222; border-radius: 3px; }
-        ::-webkit-scrollbar-thumb:hover { background: var(--red-primary); }
-
-        /* RESPONSIVE */
         @media (max-width: 900px) {
           .sidebar { display: none; }
           .content { margin-left: 0; padding: 20px; }
@@ -443,15 +318,18 @@ const ArenaHub = () => {
         <div className="menu-container">
           {/* PLAYERS GROUP */}
           <div>
-            <button className="group-header" onClick={() => toggleSection("players")}>
+            <button
+              className={`group-header ${activeSection === "players" ? "active-header" : ""}`}
+              onClick={() => toggleSection("players")}
+            >
               PLAYERS DATABASE
-              {expandedSection === "players" ? <FaChevronDown/> : <FaChevronRight/>}
+              {expandedSection === "players" ? <FaChevronDown /> : <FaChevronRight />}
             </button>
             <div className={`group-list ${expandedSection === "players" ? "open" : ""}`}>
               {GAMES.map((game) => (
                 <button
                   key={`p-${game}`}
-                  className={`game-btn ${selectedRole === "players" && selectedGame === game ? "active" : ""}`}
+                  className={`game-btn ${activeSection === "players" && selectedGame === game ? "active" : ""}`}
                   onClick={() => handleSelection("players", game)}
                 >
                   {game}
@@ -462,15 +340,18 @@ const ArenaHub = () => {
 
           {/* CREATORS GROUP */}
           <div style={{ marginTop: '10px' }}>
-            <button className="group-header" onClick={() => toggleSection("creators")}>
+            <button
+              className={`group-header ${activeSection === "creators" ? "active-header" : ""}`}
+              onClick={() => toggleSection("creators")}
+            >
               CREATORS ARCHIVE
-              {expandedSection === "creators" ? <FaChevronDown/> : <FaChevronRight/>}
+              {expandedSection === "creators" ? <FaChevronDown /> : <FaChevronRight />}
             </button>
             <div className={`group-list ${expandedSection === "creators" ? "open" : ""}`}>
               {GAMES.map((game) => (
                 <button
                   key={`c-${game}`}
-                  className={`game-btn ${selectedRole === "creators" && selectedGame === game ? "active" : ""}`}
+                  className={`game-btn ${activeSection === "creators" && selectedGame === game ? "active" : ""}`}
                   onClick={() => handleSelection("creators", game)}
                 >
                   {game}
@@ -483,20 +364,19 @@ const ArenaHub = () => {
 
       {/* ===== CONTENT ===== */}
       <main className="content">
-        {/* Header */}
-        <header className="header">
+        <header className="header" style={{ visibility: selectedVideo ? "hidden" : "visible" }}>
           <div className="page-title">
             <div className="page-subtitle">
-              {selectedRole} // <span className="highlight-text">{selectedGame}</span>
+              {activeSection} // <span className="highlight-text">{selectedGame}</span>
             </div>
             <h1>MEDIA <span className="highlight-text">ARCHIVE</span></h1>
           </div>
-          
+
           <div className="search-container">
-            <input 
-              type="text" 
-              className="search-input" 
-              placeholder="SEARCH CLIPS..." 
+            <input
+              type="text"
+              className="search-input"
+              placeholder="SEARCH CLIPS..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
@@ -504,42 +384,60 @@ const ArenaHub = () => {
           </div>
         </header>
 
-        {/* Videos */}
         <div className="video-grid">
           {displayVideos.length > 0 ? (
             displayVideos.slice(0, visibleCount).map((video) => {
-               const id = video?.id?.videoId || video?.id;
-               // Safe fallback for thumbnails
-               const thumbnailUrl = video?.snippet?.thumbnails?.high?.url || video?.snippet?.thumbnails?.medium?.url || "";
-               
-               return (
-                 <div key={id} className="video-card" onClick={() => setSelectedVideo(video)}>
-                   <div className="thumbnail-box">
-                     {thumbnailUrl ? (
-                       <img 
-                          src={thumbnailUrl} 
-                          alt={video?.snippet?.title} 
-                          className="video-thumb"
-                       />
-                     ) : (
-                       <div style={{width:'100%', height:'100%', background:'#222', display:'flex', alignItems:'center', justifyContent:'center'}}>No Image</div>
-                     )}
-                     <div className="overlay-icon">
-                       <div className="play-circle">
-                         <FaPlay size={16} style={{ marginLeft: '2px' }} />
-                       </div>
-                     </div>
-                   </div>
+              // Handle ID differences between Youtube API and DB
+              const id = video?.id?.videoId || video?.id;
+              // Handle Thumbnail differences
+              const thumbnailUrl = video?.snippet?.thumbnails?.high?.url || video?.snippet?.thumbnails?.medium?.url || "";
+              // Handle Video Source differences (DB uses videoUrl, YouTube uses iframe ID)
+              const isPlayerVideo = video.isPlayerVideo;
 
-                   <div className="card-meta">
-                     <h3 className="vid-title">{video?.snippet?.title}</h3>
-                     <div className="vid-stats">
-                       <span className="channel-name">{video?.snippet?.channelTitle}</span>
-                       <span>{Number(video.statistics?.viewCount || 0).toLocaleString()} VIEWS</span>
-                     </div>
-                   </div>
-                 </div>
-               );
+              return (
+                <div key={id} className="video-card" onClick={() => setSelectedVideo(video)}>
+                  <div className="thumbnail-box">
+                    {thumbnailUrl ? (
+                      <img src={thumbnailUrl} alt={video?.snippet?.title} className="video-thumb" />
+                    ) : (
+                      <div style={{ width: '100%', height: '100%', background: '#222', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>No Image</div>
+                    )}
+                    <div className="overlay-icon">
+                      <div className="play-circle"><FaPlay size={16} style={{ marginLeft: '2px' }} /></div>
+                    </div>
+                  </div>
+
+                  <div className="card-meta">
+                    <h3 className="vid-title">{video?.snippet?.title}</h3>
+                    <div className="vid-stats">
+                      <span className="channel-name">{video?.snippet?.channelTitle}</span>
+                      <span>{formatNumber(Number(video.statistics?.viewCount || 0))} VIEWS</span>
+                    </div>
+
+                    {/* Social Actions for Player Videos */}
+                    {isPlayerVideo && (
+                      <div className="actions-row">
+                        <button className="stat-item action-btn" onClick={(e) => likeVideo(id, e)}>
+                          <FaHeart size={12} color={(video.likesAttributes || []).some(uid => String(uid) === String(currentUserId)) ? "#ff001f" : "#444"} />
+                          <span style={{ color: (video.likesAttributes || []).some(uid => String(uid) === String(currentUserId)) ? "#ff001f" : "#666" }}>
+                            {formatNumber(video.statistics?.likeCount || 0)}
+                          </span>
+                        </button>
+                        <div className="stat-item">
+                          <FaCommentAlt size={12} color="#444" />
+                          <span>{formatNumber(video.statistics?.commentCount || 0)}</span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  {/* Add style for actions-row */}
+                  <style>{`
+                      .actions-row { display: flex; gap: 15px; margin-top: 10px; padding-top: 10px; border-top: 1px solid #222; }
+                      .stat-item { display: flex; align-items: center; gap: 5px; color: #666; font-size: 12px; font-weight: 600; background:none; border:none; cursor: pointer; }
+                      .action-btn:hover { transform: scale(1.1); }
+                    `}</style>
+                </div>
+              );
             })
           ) : (
             <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '40px', color: '#666' }}>
@@ -548,7 +446,6 @@ const ArenaHub = () => {
           )}
         </div>
 
-        {/* Load More */}
         {visibleCount < displayVideos.length && (
           <div className="load-more-container">
             <button className="load-btn" onClick={() => setVisibleCount((v) => v + 9)}>
@@ -560,23 +457,158 @@ const ArenaHub = () => {
 
       {/* ===== MODAL ===== */}
       {selectedVideo && (
-        <div className="modal-overlay" onClick={() => setSelectedVideo(null)}>
-          <div className="modal-box" onClick={(e) => e.stopPropagation()}>
-            <button className="close-btn" onClick={() => setSelectedVideo(null)}>
-              <IoMdClose />
-            </button>
-            <iframe
-              width="100%"
-              height="100%"
-              src={`https://www.youtube.com/embed/${selectedVideo?.id?.videoId || selectedVideo?.id}?autoplay=1`}
-              title="Video Player"
-              frameBorder="0"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-            />
-          </div>
-        </div>
+        <ArenaVideoModal
+          video={selectedVideo}
+          onClose={() => { setSelectedVideo(null); refreshData(); }}
+          currentUserId={currentUserId}
+          onUpdate={refreshData}
+        />
       )}
+    </div>
+  );
+};
+
+/* =========================================
+   SUB-COMPONENT: ARENA VIDEO MODAL
+   ========================================= */
+const ArenaVideoModal = ({ video, onClose, currentUserId, onUpdate }) => {
+  // Only for Player videos
+  const [comments, setComments] = useState([]);
+  const [newComment, setNewComment] = useState("");
+
+  // YouTube videos don't use these, but we init hooks unconditionally
+  const isPlayerVideo = video.isPlayerVideo;
+  const videoId = video?.id?.videoId || video?.id;
+
+  useEffect(() => {
+    if (!isPlayerVideo || !videoId) return;
+
+    // View Increment (Session Based)
+    const sessionKey = `viewed_${videoId}`;
+    if (!sessionStorage.getItem(sessionKey)) {
+      fetch(`http://localhost:8001/api/arena/${videoId}/view`, { method: "PUT" })
+        .catch(err => console.error("View inc failed", err));
+      sessionStorage.setItem(sessionKey, "true");
+    }
+
+    // Fetch comments
+    fetch(`http://localhost:8001/api/arena/${videoId}/comments`)
+      .then(res => res.json())
+      .then(data => setComments(data))
+      .catch(err => console.error(err));
+
+  }, [videoId, isPlayerVideo]);
+
+  const handlePostComment = async (e) => {
+    e.preventDefault();
+    if (!newComment.trim()) return;
+
+    const tempComment = {
+      _id: Date.now(),
+      text: newComment,
+      userId: { name: "Me" },
+      createdAt: new Date().toISOString()
+    };
+
+    setComments([tempComment, ...comments]);
+    setNewComment("");
+
+    try {
+      await fetch(`http://localhost:8001/api/arena/${videoId}/comment`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`
+        },
+        body: JSON.stringify({ text: tempComment.text })
+      });
+      if (onUpdate) onUpdate(); // Refresh main grid
+    } catch (err) { console.error(err); }
+  };
+
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div className={`modal-box ${isPlayerVideo ? 'split-view' : ''}`} onClick={(e) => e.stopPropagation()}>
+        <button className="close-btn" onClick={onClose}><IoMdClose /></button>
+
+        <div className="modal-split">
+          <div className="video-section">
+            {isPlayerVideo ? (
+              <video
+                width="100%"
+                height="100%"
+                controls
+                autoPlay
+                src={video.videoUrl}
+              />
+            ) : (
+              <iframe
+                width="100%"
+                height="100%"
+                src={`https://www.youtube.com/embed/${videoId}?autoplay=1`}
+                title="Video Player"
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
+            )}
+          </div>
+
+          {/* Comment Section ONLY for Player Videos */}
+          {isPlayerVideo && (
+            <div className="interaction-section">
+              <div className="int-header">
+                <h3>COMMENTS</h3>
+              </div>
+
+              <div className="comments-list">
+                {comments.map(c => (
+                  <div key={c._id} className="comment-item">
+                    <strong>{c.userId?.name || "User"}:</strong> {c.text}
+                  </div>
+                ))}
+                {comments.length === 0 && <p style={{ color: '#444', padding: 10 }}>No comments yet.</p>}
+              </div>
+
+              <form className="comment-input-box" onSubmit={handlePostComment}>
+                <input
+                  value={newComment}
+                  onChange={e => setNewComment(e.target.value)}
+                  placeholder="Type a comment..."
+                />
+                <button type="submit"><FaPaperPlane /></button>
+              </form>
+            </div>
+          )}
+        </div>
+      </div>
+
+      <style>{`
+        .modal-box { width: 80%; max-width: 1100px; aspect-ratio: 16/9; background: #000; position: relative; box-shadow: 0 0 50px rgba(255, 0, 31, 0.1); border: 1px solid #222; overflow: hidden; display: flex; flex-direction: column; }
+        .modal-box.split-view { aspect-ratio: auto; height: 85vh; max-width: 1400px; width: 90%; }
+        
+        .modal-split { display: flex; width: 100%; height: 100%; }
+        .video-section { flex: 3; background: #000; display: flex; align-items: center; justify-content: center; width: 100%; }
+        
+        .interaction-section { flex: 1; border-left: 1px solid #222; display: flex; flex-direction: column; background: #0a0a0a; min-width: 320px; }
+        .int-header { padding: 15px; border-bottom: 1px solid #222; display: flex; justify-content: space-between; align-items: center; font-family: 'Teko'; font-size: 20px; color: #fff; }
+        .comments-list { flex: 1; overflow-y: auto; padding: 15px; font-size: 14px; color: #ccc; }
+        .comment-item { margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid #1a1a1a; word-break: break-word; }
+        .comment-item strong { color: #ff001f; margin-right: 5px; }
+        .comment-input-box { padding: 15px; border-top: 1px solid #222; display: flex; gap: 10px; background: #080808; }
+        .comment-input-box input { flex: 1; background: #111; border: 1px solid #333; color: #fff; padding: 10px; outline: none; border-radius: 4px; }
+        .comment-input-box button { background: #ff001f; border: none; color: #fff; padding: 0 15px; cursor: pointer; border-radius: 4px; font-weight: bold; }
+
+        .close-btn { position: absolute; top: 15px; left: 15px; z-index: 10; background: rgba(0,0,0,0.6); color: #fff; font-size: 24px; cursor: pointer; border-radius: 50%; padding: 5px; border:none; transition: opacity 0.3s; opacity: 0; }
+        .modal-box:hover .close-btn { opacity: 1; } 
+
+        @media (max-width: 900px) {
+          .modal-split { flex-direction: column; }
+          .modal-box.split-view { height: 100%; width: 100%; }
+          .interaction-section { height: 40%; }
+          .video-section { height: 60%; }
+        }
+      `}</style>
     </div>
   );
 };

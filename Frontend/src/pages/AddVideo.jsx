@@ -19,6 +19,13 @@ const AddVideo = () => {
       return;
     }
 
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("Session expired. Please login again.");
+      navigate("/login");
+      return;
+    }
+
     setUploading(true);
 
     try {
@@ -29,25 +36,35 @@ const AddVideo = () => {
       formData.append("video", videoFile);
 
       const res = await fetch(
-        "http://localhost:8000/api/dashboard/videos",
+        "http://localhost:8000/api/dashboard/videos/add-video",
         {
           method: "POST",
           headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
+            Authorization: `Bearer ${token}`,
           },
-          body: formData,
+          body: formData, // ❌ DO NOT set Content-Type
         }
       );
 
-      if (!res.ok) {
-        const err = await res.json();
-        throw new Error(err.message || "Upload failed");
+      const text = await res.text();
+      console.log("RAW SERVER RESPONSE:", text);
+
+      let data;
+      try {
+        data = JSON.parse(text);
+      } catch (e) {
+        throw new Error(`Backend response was not JSON. Raw response: ${text.substring(0, 200)}...`);
       }
 
+      if (!res.ok) {
+        throw new Error(data.message || `Upload failed with status ${res.status}`);
+      }
+
+      alert("Video uploaded successfully!");
       navigate("/dashboard");
-    } catch (error) {
-      console.error(error);
-      alert("Video upload failed. Try a smaller video.");
+    } catch (err) {
+      console.error("UPLOAD ERROR:", err.message);
+      alert(err.message);
     } finally {
       setUploading(false);
     }
@@ -68,14 +85,12 @@ const AddVideo = () => {
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           style={styles.input}
-          required
         />
 
         <select
           value={game}
           onChange={(e) => setGame(e.target.value)}
           style={styles.input}
-          required
         >
           <option value="">Select Game</option>
           <option>PUBG</option>

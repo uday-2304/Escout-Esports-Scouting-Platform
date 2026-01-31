@@ -28,6 +28,8 @@ import OtpPage from "./pages/OtpPage";
 import AddVideo from "./pages/AddVideo";
 import ResetPasswordPage from "./pages/resetPassword";
 import TournamentsPage from "./pages/TournamentsPage";
+import RankingsPage from "./pages/RankingsPage";
+
 const AppContent = () => {
   const location = useLocation();
   const isHome = location.pathname === "/";
@@ -37,28 +39,29 @@ const AppContent = () => {
       <Navbar />
       {isHome && (
         <>
-          <Hero/>
-          <Program/>
-          <LiveStats/>
-          <AboutSection/>
-          <Footer/>
+          <Hero />
+          <Program />
+          <LiveStats />
+          <AboutSection />
+          <Footer />
         </>
       )}
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/contact" element={<Contact />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/messages" element={<Notifications />} />
-          <Route path="/login" element={<AuthPage />} />
-          <Route path="/register" element={<AuthPage />} />
-          <Route path="/verify-otp" element={<OtpPage />} />
-          <Route path="/reset-password" element={<ResetPasswordPage />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/arena-hub" element={<ArenaHub />} />
-          <Route path="/add-video" element={<AddVideo />} />
-          <Route path="/tournaments" element={<TournamentsPage />} />
-        </Routes>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/contact" element={<Contact />} />
+        <Route path="/profile" element={<Profile />} />
+        <Route path="/messages" element={<Notifications />} />
+        <Route path="/login" element={<AuthPage />} />
+        <Route path="/register" element={<AuthPage />} />
+        <Route path="/verify-otp" element={<OtpPage />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/arena-hub" element={<ArenaHub />} />
+        <Route path="/add-video" element={<AddVideo />} />
+        <Route path="/tournaments" element={<TournamentsPage />} />
+        <Route path="/rankings" element={<RankingsPage />} />
+      </Routes>
 
     </div>
   );

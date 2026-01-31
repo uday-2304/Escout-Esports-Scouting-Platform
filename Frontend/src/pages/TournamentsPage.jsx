@@ -107,8 +107,8 @@ const TournamentsPage = () => {
         <div className="brand-title">
           <FaGamepad /> BATTLEFY <span>HUB</span>
         </div>
-        <button 
-          className="external-btn" 
+        <button
+          className="external-btn"
           onClick={() => window.open(TOURNAMENT_URL, "_blank")}
         >
           Open Original Site <FaExternalLinkAlt size={14} />
@@ -118,11 +118,11 @@ const TournamentsPage = () => {
       {/* --- IFRAME AREA --- */}
       <div className="iframe-container">
         <div className="fallback-msg">
-          Loading Tournament Feed... <br/>
+          Loading Tournament Feed... <br />
           <small>If content does not appear, please use the button above.</small>
         </div>
-        
-        <iframe 
+
+        <iframe
           src={TOURNAMENT_URL}
           className="styled-iframe"
           title="Battlefy Tournaments"

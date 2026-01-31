@@ -9,6 +9,7 @@ import {
 	resetPassword,
 	socialAuthRedirect,
 	verifyOtpAndRegister,
+	getCurrentUser,
 } from "../controllers/userController.js";
 
 const router = Router();
@@ -24,5 +25,5 @@ router.post("/resend-otp", resendRegistrationOtp);
 
 // social auth placeholders
 router.get("/auth/:provider", socialAuthRedirect);
-  
+
 export default router;
