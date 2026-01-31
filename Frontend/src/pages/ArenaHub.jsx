@@ -3,7 +3,7 @@ import { FaSearch, FaPlay, FaChevronDown, FaChevronRight, FaHeart, FaPaperPlane,
 import { IoMdClose } from "react-icons/io";
 import { formatNumber } from "../utils/formatters";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "https://escout-esports-scouting-platform-1.onrender.com";
 const GAMES = ["All", "PUBG", "FreeFire", "Fortnite", "COD", "Valorant"];
 
 import LoginGate from "../components/LoginGate";
@@ -105,7 +105,7 @@ const ArenaHub = () => {
     }
 
     try {
-      await fetch(`http://localhost:8001/api/arena/${id}/like`, {
+      await fetch(`https://escout-esports-scouting-platform-1.onrender.com/api/arena/${id}/like`, {
         method: "PUT",
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -486,13 +486,13 @@ const ArenaVideoModal = ({ video, onClose, currentUserId, onUpdate }) => {
     // View Increment (Session Based)
     const sessionKey = `viewed_${videoId}`;
     if (!sessionStorage.getItem(sessionKey)) {
-      fetch(`http://localhost:8001/api/arena/${videoId}/view`, { method: "PUT" })
+      fetch(`https://escout-esports-scouting-platform-1.onrender.com/api/arena/${videoId}/view`, { method: "PUT" })
         .catch(err => console.error("View inc failed", err));
       sessionStorage.setItem(sessionKey, "true");
     }
 
     // Fetch comments
-    fetch(`http://localhost:8001/api/arena/${videoId}/comments`)
+    fetch(`https://escout-esports-scouting-platform-1.onrender.com/api/arena/${videoId}/comments`)
       .then(res => res.json())
       .then(data => setComments(data))
       .catch(err => console.error(err));
@@ -514,7 +514,7 @@ const ArenaVideoModal = ({ video, onClose, currentUserId, onUpdate }) => {
     setNewComment("");
 
     try {
-      await fetch(`http://localhost:8001/api/arena/${videoId}/comment`, {
+      await fetch(`https://escout-esports-scouting-platform-1.onrender.com/api/arena/${videoId}/comment`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

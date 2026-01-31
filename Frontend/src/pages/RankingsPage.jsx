@@ -76,7 +76,7 @@ const RankingsPage = () => {
       // Map frontend tab names to DB values if needed (e.g. BGMI -> PUBG)
       const queryGame = activeGame === "BGMI" ? "PUBG" : activeGame;
 
-      fetch(`http://localhost:8000/api/rankings/platform?game=${encodeURIComponent(queryGame)}`)
+      fetch(`https://escout-esports-scouting-platform-1.onrender.com/api/rankings/platform?game=${encodeURIComponent(queryGame)}`)
         .then(res => res.json())
         .then(data => {
           setPlatformData(data);

@@ -28,7 +28,7 @@ const Dashboard = () => {
   /* ================= FETCH VIDEOS & USER ================= */
   useEffect(() => {
     // Fetch User
-    fetch("http://localhost:8000/api/users/me", {
+    fetch("https://escout-esports-scouting-platform-1.onrender.com/api/v1/users/me", {
       headers: { Authorization: `Bearer ${token}` }
     })
       .then(res => res.json())
@@ -42,7 +42,7 @@ const Dashboard = () => {
       if (!token) return;
 
       try {
-        const res = await fetch("http://localhost:8000/api/dashboard/videos", {
+        const res = await fetch("https://escout-esports-scouting-platform-1.onrender.com/api/dashboard/videos", {
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -71,7 +71,7 @@ const Dashboard = () => {
     if (!window.confirm("Are you sure you want to delete this video?")) return;
 
     try {
-      const res = await fetch(`http://localhost:8000/api/dashboard/videos/${id}`, {
+      const res = await fetch(`https://escout-esports-scouting-platform-1.onrender.com/api/dashboard/videos/${id}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
@@ -290,7 +290,7 @@ const Dashboard = () => {
                   <div key={video._id} className="video-card" onClick={() => setActiveVideo(video)}>
                     {/* Thumbnail */}
                     <div className="thumbnail-box">
-                      <img src={`http://localhost:8000${video.thumbnail}`} alt={video.title} className="video-thumb" />
+                      <img src={`https://escout-esports-scouting-platform-1.onrender.com${video.thumbnail}`} alt={video.title} className="video-thumb" />
                       <div className="overlay-icon">
                         <div className="play-circle">
                           <FaPlay size={16} style={{ marginLeft: '2px' }} />
@@ -342,7 +342,7 @@ const VideoModal = ({ video, onClose }) => {
     const hasViewed = sessionStorage.getItem(sessionKey);
 
     if (!hasViewed) {
-      fetch(`http://localhost:8000/api/dashboard/videos/${video._id}/view`, {
+      fetch(`https://escout-esports-scouting-platform-1.onrender.com/api/dashboard/videos/${video._id}/view`, {
         method: "PUT"
       }).catch(err => console.error("View increment failed", err));
 
@@ -361,7 +361,7 @@ const VideoModal = ({ video, onClose }) => {
             height="100%"
             controls
             autoPlay
-            src={`http://localhost:8000${video.videoUrl}`}
+            src={`https://escout-esports-scouting-platform-1.onrender.com${video.videoUrl}`}
             style={{ objectFit: 'contain' }}
           />
         </div>

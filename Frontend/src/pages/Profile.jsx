@@ -12,7 +12,7 @@ const Profile = () => {
   if (!token) return <LoginGate />;
 
   useEffect(() => {
-    fetch("http://localhost:8000/api/users/me", {
+    fetch("https://escout-esports-scouting-platform-1.onrender.com/api/v1/users/me", {
       headers: { Authorization: `Bearer ${token}` }
     })
       .then(res => res.json())

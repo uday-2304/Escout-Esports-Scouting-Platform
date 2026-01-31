@@ -3,7 +3,7 @@ import Video from "../models/Video.js";
 import Comment from "../models/Comment.js";
 
 const YOUTUBE_API_KEY = process.env.YOUTUBE_API_KEY;
-const BASE_URL = process.env.BASE_URL || "http://localhost:8000"; // Use env var for production
+const BASE_URL = process.env.BASE_URL || "https://escout-esports-scouting-platform-1.onrender.com"; // Use env var for production
 
 /* ======================================================
    CONFIG: YOUTUBE PLAYLISTS & KEYWORDS

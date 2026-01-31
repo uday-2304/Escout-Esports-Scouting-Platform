@@ -36,7 +36,7 @@ const AddVideo = () => {
       formData.append("video", videoFile);
 
       const res = await fetch(
-        "http://localhost:8000/api/dashboard/videos/add-video",
+        "https://escout-esports-scouting-platform-1.onrender.com/api/dashboard/videos/add-video",
         {
           method: "POST",
           headers: {
